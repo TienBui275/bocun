@@ -86,7 +86,7 @@ async function seedGradeSubjects() {
       console.log(`\n✅ Đã tạo ${gradeSubjectsData.length} grade_subjects!`)
     }
   } else {
-    console.log('\n⚠️  Không có dữ liệu để seed. Hãy chạy seed-units-lessons.js trước!')
+    console.log('\n⚠️  Không có dữ liệu để seed. Hãy import dữ liệu lessons/exercises trước (ví dụ: node scripts/import-lesson-csv.js --file <csv>).')
   }
 
   console.log('')

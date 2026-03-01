@@ -69,21 +69,20 @@ Kiểm tra trong **Table Editor**:
 - `student_progress` (có thêm cột `lesson_id`, `unit_id`)
 - `grade_subjects` (đổi `topic_count` → `unit_count`, thêm `lesson_count`)
 
-### Bước 4: Seed dữ liệu mẫu (Units + Lessons)
+### Bước 4: Import dữ liệu bằng script tổng quát
 
 ```bash
 cd cunbo_project
-node scripts/seed-units-lessons.js
+node scripts/import-lesson-csv.js --file data/Math_Stage_4_Unit_1_Lesson_1.2.csv
 ```
 
 Kết quả:
 ```
-✅ Hoàn tất seed Units & Lessons!
+✅ Hoàn tất import CSV!
 
 📊 Tổng kết:
-   - 2 Units
-   - 3 Lessons
-   - 7 Exercises
+  - X inserted / Y updated exercises
+  - Lesson exercise_count được cập nhật
 ```
 
 ### Bước 5: Test API Endpoints
@@ -177,7 +176,7 @@ curl "http://localhost:3000/api/exercises?topic_id=1"
 - ✅ `supabase/migrations/002_refactor_to_units_lessons.sql`
 - ✅ `app/api/units/route.js`
 - ✅ `app/api/lessons/route.js`
-- ✅ `scripts/seed-units-lessons.js`
+- ✅ `scripts/import-lesson-csv.js`
 - ✅ `MIGRATION_GUIDE.md` (file này)
 
 ### Files Cập nhật:
@@ -188,7 +187,6 @@ curl "http://localhost:3000/api/exercises?topic_id=1"
 
 ### Files Không thay đổi:
 - Database migration cũ: `001_cunbo_schema.sql` (giữ nguyên)
-- Seed script cũ: `seed-data.js` (giữ nguyên cho backward compatible)
 - API route cũ: `api/topics/route.js` (giữ nguyên)
 
 ---
@@ -285,7 +283,7 @@ ALTER TABLE public.student_progress DROP COLUMN IF EXISTS topic_id;
 → Bảng `exercises` chưa có cột `lesson_id`. Chạy lại migration.
 
 ### API trả về empty units
-→ Chưa seed data. Chạy `node scripts/seed-units-lessons.js`
+→ Chưa import data. Chạy `node scripts/import-lesson-csv.js --file <csv>`
 
 ### Muốn rollback về cấu trúc cũ?
 → Restore từ backup đã tạo ở **Bước 1**.
@@ -296,4 +294,4 @@ ALTER TABLE public.student_progress DROP COLUMN IF EXISTS topic_id;
 
 - [DATABASE_DESIGN.md](supabase/DATABASE_DESIGN.md) - Schema documentation mới
 - [002_refactor_to_units_lessons.sql](supabase/migrations/002_refactor_to_units_lessons.sql) - Migration SQL
-- [scripts/README.md](scripts/README.md) - Seed scripts documentation
+- [scripts/README.md](scripts/README.md) - Scripts documentation

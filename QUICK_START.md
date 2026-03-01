@@ -11,7 +11,7 @@
 - [ ] Cập nhật `.env.local`
 - [ ] Chạy SQL migration trong Supabase SQL Editor
 - [ ] Verify 9 tables đã được tạo
-- [ ] Chạy seed script: `node scripts/seed-data.js`
+- [ ] Import CSV: `node scripts/import-lesson-csv.js --file data/Math_Stage_4_Unit_1_Lesson_1.2.csv`
 - [ ] Test: `http://localhost:3000/test-db`
 
 ---
@@ -121,7 +121,9 @@ cunbo_project/
 ├── middleware.js                     ✅ Route protection (mới)
 │
 └── scripts/
-    └── seed-data.js                 ✅ Sample data seeder
+    ├── import-lesson-csv.js         ✅ Generic CSV importer (future-proof)
+    ├── upload-exercise-images.js    ✅ Generic image sync to Supabase Storage
+    └── run-migration.js             ✅ Generic migration runner
 ```
 
 **Bạn cần cấu hình:**
@@ -168,7 +170,7 @@ Bạn sẽ có:
 ```bash
 # Development
 npm run dev              # Khởi động dev server
-node scripts/seed-data.js # Tạo sample data
+node scripts/import-lesson-csv.js --file data/Math_Stage_4_Unit_1_Lesson_1.2.csv # Import lessons từ CSV
 
 # Testing
 curl "http://localhost:3000/api/topics?grade=pre-k&subject=toan"

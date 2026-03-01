@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
+import Image from "next/image";
 
 // ─── helpers ────────────────────────────────────────────────
 function checkAnswer(exercise, userAnswer) {
@@ -12,10 +13,24 @@ function checkAnswer(exercise, userAnswer) {
         return accepted.includes(userAnswer.trim().toLowerCase());
     }
     // multiple_choice / true_false: check via option.is_correct
-    const chosen = (exercise.exercise_options ?? []).find(
+    const chosen = getEffectiveOptions(exercise).find(
         (o) => o.id === userAnswer
     );
     return chosen?.is_correct === true;
+}
+
+// ─── auto-generate True/False options when DB has none ──────
+function getEffectiveOptions(exercise) {
+    if (exercise.question_type !== "true_false") return exercise.exercise_options ?? [];
+    if ((exercise.exercise_options ?? []).length > 0) return exercise.exercise_options;
+
+    // Derive which is correct from correct_answer field (e.g. "true"/"false"/"1"/"0")
+    const ca = (exercise.correct_answer ?? "").trim().toLowerCase();
+    const trueIsCorrect = ca === "true" || ca === "1" || ca === "đúng" || ca === "yes";
+    return [
+        { id: "tf-true",  option_label: "A", option_text: "Đúng (True)",  is_correct: trueIsCorrect,  order_index: 1 },
+        { id: "tf-false", option_label: "B", option_text: "Sai (False)", is_correct: !trueIsCorrect, order_index: 2 },
+    ];
 }
 
 function StarRating({ correct, total }) {
@@ -51,6 +66,7 @@ export default function ExercisePlayer({
     const [correctCount, setCorrectCount] = useState(0);
     const [finished, setFinished] = useState(false);
     const [visible, setVisible] = useState(true); // for fade animation
+    const [hintOpen, setHintOpen] = useState(false);
 
     const exercise = exercises[currentIndex];
     const isFillBlank = exercise?.question_type === "fill_blank";
@@ -103,6 +119,7 @@ export default function ExercisePlayer({
                 setUserAnswer("");
                 setSubmitted(false);
                 setIsCorrect(false);
+                setHintOpen(false);
             }
             setVisible(true);
         }, 260);
@@ -156,6 +173,7 @@ export default function ExercisePlayer({
                                 setCorrectCount(0);
                                 setFinished(false);
                                 setVisible(true);
+                                setHintOpen(false);
                             }}
                         >
                             🔄 Làm lại
@@ -206,10 +224,31 @@ export default function ExercisePlayer({
                     ))}
                 </div>
 
+                {/* Exercise image */}
+                {exercise.image_url && (
+                    <div className="cb-ex-image-wrap">
+                        <Image
+                            src={exercise.image_url}
+                            alt="Exercise illustration"
+                            width={600}
+                            height={400}
+                            className="cb-ex-image"
+                            style={{ width: "100%", height: "auto" }}
+                            unoptimized
+                        />
+                    </div>
+                )}
+
                 {/* Hint */}
                 {exercise.hint && !submitted && (
-                    <div className="cb-ex-hint">
-                        💡 <em>{exercise.hint}</em>
+                    <div
+                        className={`cb-ex-hint ${hintOpen ? "cb-ex-hint--open" : "cb-ex-hint--closed"}`}
+                        onClick={() => setHintOpen((v) => !v)}
+                        title={hintOpen ? "Ẩn gợi ý" : "Xem gợi ý"}
+                        style={{ cursor: "pointer" }}
+                    >
+                        <span className="cb-ex-hint-icon">💡</span>
+                        {hintOpen && <em className="cb-ex-hint-text">{exercise.hint}</em>}
                     </div>
                 )}
 
@@ -237,7 +276,7 @@ export default function ExercisePlayer({
                     </div>
                 ) : (
                     <div className="cb-options-list">
-                        {exercise.exercise_options.map((opt) => {
+                        {getEffectiveOptions(exercise).map((opt) => {
                             let stateClass = "";
                             if (submitted) {
                                 if (opt.is_correct) stateClass = "cb-opt-correct";
@@ -256,6 +295,17 @@ export default function ExercisePlayer({
                                 >
                                     <span className="cb-opt-label">{opt.option_label}</span>
                                     <span className="cb-opt-text">{opt.option_text}</span>
+                                    {opt.option_image_url && (
+                                        <Image
+                                            src={opt.option_image_url}
+                                            alt={`Option ${opt.option_label}`}
+                                            width={300}
+                                            height={200}
+                                            className="cb-opt-image"
+                                            style={{ width: "100%", height: "auto", marginTop: "6px" }}
+                                            unoptimized
+                                        />
+                                    )}
                                     {submitted && opt.is_correct && (
                                         <span className="cb-opt-icon">✓</span>
                                     )}

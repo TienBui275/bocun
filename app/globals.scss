@@ -713,6 +713,11 @@ img {
   to { opacity: 1; transform: scale(1); }
 }
 
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
 .cb-modal-header {
   display: flex;
   justify-content: space-between;
@@ -1205,14 +1210,53 @@ img {
   }
 }
 
+// Exercise image
+.cb-ex-image-wrap {
+  width: 100%;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+
+  img.cb-ex-image {
+    display: block;
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+    max-height: 360px;
+  }
+}
+
 // Hint
 .cb-ex-hint {
-  background: #fffbeb;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
   border-left: 3px solid #f59e0b;
   border-radius: 8px;
-  padding: 10px 14px;
+  padding: 8px 14px;
   font-size: 0.9rem;
   color: #92400e;
+  user-select: none;
+  transition: background 0.2s;
+
+  &--closed {
+    background: #fffbeb;
+    &:hover { background: #fef3c7; }
+  }
+
+  &--open {
+    background: #fffbeb;
+  }
+
+  .cb-ex-hint-icon {
+    font-size: 1.1rem;
+    flex-shrink: 0;
+  }
+
+  .cb-ex-hint-text {
+    animation: fadeIn 0.2s ease;
+  }
 }
 
 // Fill blank input
@@ -1341,6 +1385,17 @@ img {
   margin-left: auto;
   font-size: 1.1rem;
   font-weight: 900;
+}
+
+// Option image (for image-based multiple choice)
+.cb-opt-image {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 180px;
+  object-fit: contain;
+  border-radius: 6px;
+  background: #f8fafc;
 }
 
 // Submit button

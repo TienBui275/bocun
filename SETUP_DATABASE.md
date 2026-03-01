@@ -13,7 +13,7 @@
 
 3. **Test & Scripts:**
    - [app/test-db/page.js](app/test-db/page.js) - Trang test database connection
-   - [scripts/seed-data.js](scripts/seed-data.js) - Script tạo dữ liệu mẫu
+   - [scripts/import-lesson-csv.js](scripts/import-lesson-csv.js) - Script import dữ liệu bài tập từ CSV
 
 ---
 
@@ -99,24 +99,21 @@ SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI...
 
 ---
 
-### Bước 6: Chạy Seed Data (tạo dữ liệu mẫu)
+### Bước 6: Import dữ liệu bài tập từ CSV
 
 Trong terminal, chạy lệnh:
 
 ```bash
 cd cunbo_project
-node scripts/seed-data.js
+node scripts/import-lesson-csv.js --file data/Math_Stage_4_Unit_1_Lesson_1.2.csv
 ```
 
 Kết quả mong đợi:
 ```
-🌱 Bắt đầu seed data cho Cun Bo Project...
-✅ Tìm thấy 7 grades và 3 subjects
-📚 Tạo topic: "Đếm số 1-5" (Pre-K - Toán)...
-✅ Đã tạo topic: Đếm số 1-5
-  ✓ Tạo bài tập: 🍎 Đếm số quả táo. Có bao nhiêu quả?
-  ...
-✅ Hoàn tất seed data!
+📥 CSV Import (Generic)
+... (upsert exercises)
+🖼️ Syncing exercise images to Supabase Storage...
+🎉 Done: X inserted, Y updated
 ```
 
 ---
