@@ -12,7 +12,7 @@ const GradeCard = ({ grade }) => {
                 <h3 className="cb-grade-name">{grade.name}</h3>
             </div>
 
-            <p className="cb-grade-desc">{grade.description || "Nội dung đang cập nhật..."}</p>
+            <p className="cb-grade-desc">{grade.description || "Content coming soon..."}</p>
 
             <div className="cb-divider" />
 
@@ -35,7 +35,7 @@ const GradeCard = ({ grade }) => {
                                 href={`/grade/${grade.slug}?subject=${subject.slug}`}
                                 className="cb-stat-link"
                             >
-                                {subject.exercise_count || 0} bài tập &gt;
+                                {subject.exercise_count || 0} exercises &gt;
                             </Link>
                         </div>
                     </div>
@@ -48,7 +48,7 @@ const GradeCard = ({ grade }) => {
 const GradeCards = async () => {
     const supabase = await createClient();
 
-    // Lấy tất cả grades
+    // Get all grades
     const { data: grades, error: gradesError } = await supabase
         .from("grades")
         .select("id, name, slug, badge_label, color, description, level_order")
@@ -60,13 +60,13 @@ const GradeCards = async () => {
         return (
             <section className="cb-grades-section" id="grades">
                 <div className="container">
-                    <p className="text-center text-danger">Không thể tải dữ liệu lớp học.</p>
+                    <p className="text-center text-danger">Unable to load grade data.</p>
                 </div>
             </section>
         );
     }
 
-    // Lấy subjects và grade_subjects song song
+    // Get subjects and grade_subjects in parallel
     const [{ data: subjects }, { data: gradeSubjects }] = await Promise.all([
         supabase
             .from("subjects")
@@ -78,7 +78,7 @@ const GradeCards = async () => {
             .eq("is_active", true),
     ]);
 
-    // Kết hợp dữ liệu: mỗi grade có danh sách subjects kèm thống kê
+    // Combine data: each grade has a list of subjects with statistics
     const gradesWithSubjects = grades?.map((grade) => {
         const gradeSubjectsList = subjects
             ?.map((subject) => {
@@ -102,8 +102,8 @@ const GradeCards = async () => {
         <section className="cb-grades-section" id="grades">
             <div className="container">
                 <div className="cb-section-title">
-                    <h2>🎓 Chọn lớp của bạn</h2>
-                    <p>Chọn cấp độ phù hợp và bắt đầu hành trình học tập thú vị!</p>
+                    <h2>🎓 Choose Your Grade</h2>
+                    <p>Pick the right level and start your exciting learning journey!</p>
                 </div>
                 <div className="cb-grades-grid">
                     {gradesWithSubjects.map((grade) => (

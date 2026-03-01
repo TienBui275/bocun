@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server'
 
 /**
  * GET /api/lessons?unit_id=123
- * Lấy danh sách lessons của một unit
+ * Get list of lessons for a unit
  */
 export async function GET(request) {
   try {
@@ -19,7 +19,7 @@ export async function GET(request) {
 
     const supabase = await createClient()
 
-    // Kiểm tra unit có tồn tại không
+    // Check if unit exists
     const { data: unit, error: unitError } = await supabase
       .from('units')
       .select(`
@@ -38,7 +38,7 @@ export async function GET(request) {
       )
     }
 
-    // Lấy lessons trong unit
+    // Get lessons in unit
     const { data: lessons, error: lessonsError } = await supabase
       .from('lessons')
       .select('*')

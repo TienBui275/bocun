@@ -22,7 +22,7 @@ export default function UserProfile() {
         className="cb-login-btn"
         onClick={() => router.push('/login')}
       >
-        Đăng Nhập
+        Log In
       </button>
     );
   }
@@ -49,19 +49,19 @@ export default function UserProfile() {
             className="cb-menu-item"
             onClick={() => router.push('/my-account')}
           >
-            👤 Tài khoản
+            👤 My Account
           </button>
           <button 
             className="cb-menu-item"
             onClick={() => router.push('/my-account/progress')}
           >
-            📊 Tiến độ học tập
+            📊 Learning Progress
           </button>
           <button 
             className="cb-menu-item cb-logout"
             onClick={signOut}
           >
-            🚪 Đăng xuất
+            🚪 Sign Out
           </button>
         </div>
       </div>

@@ -38,7 +38,7 @@ const Login = () => {
         setRegisterError("");
         setRegisterSuccess("");
         if (registerPassword !== confirmPassword) {
-            setRegisterError("Mật khẩu không khớp");
+            setRegisterError("Passwords do not match");
             return;
         }
         const result = await handleSignup(e, registerEmail, registerPassword);
@@ -55,7 +55,7 @@ const Login = () => {
         e.preventDefault();
         setForgotError("");
         setForgotSuccess("");
-        if (!forgotEmail) { setForgotError("Vui lòng nhập email"); return; }
+        if (!forgotEmail) { setForgotError("Please enter your email"); return; }
         const result = await resetPassword(forgotEmail);
         if (result?.error) setForgotError(result.error);
         else if (result?.success) { setForgotSuccess(result.success); setForgotEmail(""); }
@@ -72,9 +72,9 @@ const Login = () => {
     return (
         <>
             <div className="cb-login-logo">
-                <div className="logo-icon">🐻</div>
-                <h1>Cun Bo</h1>
-                <p>Học vui - Học thật mỗi ngày!</p>
+                <div className="logo-icon">🍊</div>
+                <h1>Cam</h1>
+                <p>Learn fun - Learn real every day!</p>
             </div>
 
             {/* Tab Buttons */}
@@ -83,13 +83,13 @@ const Login = () => {
                     className={`cb-tab-btn ${activeTab === "login" ? "active" : ""}`}
                     onClick={() => setActiveTab("login")}
                 >
-                    Đăng Nhập
+                    Log In
                 </button>
                 <button
                     className={`cb-tab-btn ${activeTab === "register" ? "active" : ""}`}
                     onClick={() => setActiveTab("register")}
                 >
-                    Đăng Ký
+                    Sign Up
                 </button>
             </div>
 
@@ -97,24 +97,23 @@ const Login = () => {
             {activeTab === "login" && (
                 <div>
                     <h2 style={{ fontSize: "1.2rem", fontWeight: 800, marginBottom: "20px", color: "#1e293b" }}>
-                        Chào mừng trở lại! 👋
+                        Welcome back! 👋
                     </h2>
                     <form onSubmit={handleLoginSubmit}>
                         <div className="cb-form-group">
                             <label>Email</label>
                             <input
                                 type="email"
-                                placeholder="Nhập email của bạn"
-                                value={loginEmail}
+                                placeholder="Enter your email"
                                 onChange={(e) => setLoginEmail(e.target.value)}
                                 required
                             />
                         </div>
                         <div className="cb-form-group">
-                            <label>Mật khẩu</label>
+                            <label>Password</label>
                             <input
                                 type="password"
-                                placeholder="Nhập mật khẩu"
+                                placeholder="Enter your password"
                                 value={loginPassword}
                                 onChange={(e) => setLoginPassword(e.target.value)}
                                 required
@@ -122,17 +121,17 @@ const Login = () => {
                         </div>
                         <div className="cb-form-extras">
                             <label>
-                                <input type="checkbox" /> Ghi nhớ đăng nhập
+                                <input type="checkbox" /> Remember me
                             </label>
-                            <a href="#" onClick={openForgotModal}>Quên mật khẩu?</a>
+                            <a href="#" onClick={openForgotModal}>Forgot password?</a>
                         </div>
                         {loginError && <div className="cb-alert error">{loginError}</div>}
                         <button type="submit" className="cb-btn-submit" disabled={isLoading}>
-                            {isLoading ? "Đang đăng nhập..." : "Đăng Nhập"}
+                            {isLoading ? "Signing in..." : "Log In"}
                         </button>
                     </form>
 
-                    <div className="cb-divider-text">hoặc</div>
+                    <div className="cb-divider-text">or</div>
 
                     <button className="cb-btn-google" onClick={handleGoogleLogin} disabled={isLoading}>
                         <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
@@ -141,7 +140,7 @@ const Login = () => {
                             <path d="M4.51173 11.9163C4.06951 10.6642 4.06951 9.3402 4.51173 8.08813V5.51215H1.20898C-0.177948 8.28269 -0.177948 11.7217 1.20898 14.4923L4.51173 11.9163Z" fill="#FBBC04" />
                             <path d="M10.2002 3.95794C11.6629 3.93617 13.0719 4.47192 14.1275 5.4548L16.9773 2.60504C15.1827 0.904091 12.7422 -0.0294371 10.2002 0.000400543C6.3444 0.000400543 2.80977 2.32119 1.20898 5.51215L4.51173 8.08813C5.28129 5.71794 7.54148 3.95794 10.2002 3.95794Z" fill="#EA4335" />
                         </svg>
-                        Đăng nhập với Google
+                        Sign in with Google
                     </button>
                 </div>
             )}
@@ -150,34 +149,34 @@ const Login = () => {
             {activeTab === "register" && (
                 <div>
                     <h2 style={{ fontSize: "1.2rem", fontWeight: 800, marginBottom: "20px", color: "#1e293b" }}>
-                        Tạo tài khoản mới 🎉
+                        Create a new account 🎉
                     </h2>
                     <form onSubmit={handleSignupSubmit}>
                         <div className="cb-form-group">
                             <label>Email</label>
                             <input
                                 type="email"
-                                placeholder="Nhập email của bạn"
+                                placeholder="Enter your email"
                                 value={registerEmail}
                                 onChange={(e) => setRegisterEmail(e.target.value)}
                                 required
                             />
                         </div>
                         <div className="cb-form-group">
-                            <label>Mật khẩu</label>
+                            <label>Password</label>
                             <input
                                 type="password"
-                                placeholder="Nhập mật khẩu (ít nhất 6 ký tự)"
+                                placeholder="Enter your password (at least 6 characters)"
                                 value={registerPassword}
                                 onChange={(e) => setRegisterPassword(e.target.value)}
                                 required
                             />
                         </div>
                         <div className="cb-form-group">
-                            <label>Xác nhận mật khẩu</label>
+                            <label>Confirm Password</label>
                             <input
                                 type="password"
-                                placeholder="Nhập lại mật khẩu"
+                                placeholder="Re-enter your password"
                                 value={confirmPassword}
                                 onChange={(e) => setConfirmPassword(e.target.value)}
                                 required
@@ -186,7 +185,7 @@ const Login = () => {
                         {registerError && <div className="cb-alert error">{registerError}</div>}
                         {registerSuccess && <div className="cb-alert success">{registerSuccess}</div>}
                         <button type="submit" className="cb-btn-submit" disabled={isLoading}>
-                            {isLoading ? "Đang đăng ký..." : "Tạo Tài Khoản"}
+                            {isLoading ? "Signing up..." : "Create Account"}
                         </button>
                     </form>
                 </div>
@@ -197,19 +196,19 @@ const Login = () => {
                 <div className="cb-modal-backdrop" onClick={() => setShowForgotModal(false)}>
                     <div className="cb-modal" onClick={(e) => e.stopPropagation()}>
                         <div className="cb-modal-header">
-                            <h3>🔑 Quên mật khẩu?</h3>
+                            <h3>🔑 Forgot Password?</h3>
                             <button onClick={() => setShowForgotModal(false)}>×</button>
                         </div>
                         {!forgotSuccess ? (
                             <form onSubmit={handleForgotSubmit}>
                                 <p style={{ fontSize: "0.88rem", color: "#64748b", marginBottom: "16px" }}>
-                                    Nhập email của bạn. Chúng tôi sẽ gửi link đặt lại mật khẩu.
+                                    Enter your email. We will send you a password reset link.
                                 </p>
                                 <div className="cb-form-group">
                                     <label>Email</label>
                                     <input
                                         type="email"
-                                        placeholder="Nhập email"
+                                        placeholder="Enter email"
                                         value={forgotEmail}
                                         onChange={(e) => setForgotEmail(e.target.value)}
                                         required
@@ -222,10 +221,10 @@ const Login = () => {
                                         onClick={() => setShowForgotModal(false)}
                                         style={{ flex: 1, padding: "12px", border: "2px solid #e2e8f0", borderRadius: "12px", background: "white", cursor: "pointer", fontWeight: 700 }}
                                     >
-                                        Hủy
+                                        Cancel
                                     </button>
                                     <button type="submit" className="cb-btn-submit" disabled={isLoading} style={{ flex: 2, marginBottom: 0 }}>
-                                        {isLoading ? "Đang gửi..." : "Gửi Link Reset"}
+                                        {isLoading ? "Sending..." : "Send Reset Link"}
                                     </button>
                                 </div>
                             </form>
@@ -237,7 +236,7 @@ const Login = () => {
                                     onClick={() => setShowForgotModal(false)}
                                     style={{ marginBottom: 0 }}
                                 >
-                                    Đóng
+                                    Close
                                 </button>
                             </div>
                         )}

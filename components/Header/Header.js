@@ -17,15 +17,15 @@ const Header = () => {
                 <div className="cb-header-inner">
                     {/* Logo */}
                     <Link href="/" className="cb-logo">
-                        <div className="cb-logo-icon">🐻</div>
-                        <span>Cun Bo</span>
+                        <div className="cb-logo-icon">🍊</div>
+                        <span>Cam</span>
                     </Link>
 
                     {/* Nav */}
                     <nav className="cb-nav">
-                        <Link href="/">Trang Chủ</Link>
-                        <Link href="/#grades">Lớp Học</Link>
-                        <Link href="/#subjects">Môn Học</Link>
+                        <Link href="/">Home</Link>
+                        <Link href="/#grades">Grades</Link>
+                        <Link href="/#subjects">Subjects</Link>
                     </nav>
 
                     {/* Auth Actions */}
@@ -39,12 +39,12 @@ const Header = () => {
                                     <span className="user-email">{user?.email}</span>
                                 </div>
                                 <button className="cb-btn-logout" onClick={signOut}>
-                                    Đăng Xuất
+                                    Sign Out
                                 </button>
                             </>
                         ) : (
                             <Link href="/login" className="cb-btn-login">
-                                🔑 Đăng Nhập
+                                🔑 Log In
                             </Link>
                         )}
                     </div>

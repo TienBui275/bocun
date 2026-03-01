@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server'
 
 /**
  * POST /api/progress
- * Lưu kết quả làm bài của học sinh
+ * Save student exercise result
  * 
  * Body: {
  *   exercise_id: number,
@@ -19,7 +19,7 @@ export async function POST(request) {
   try {
     const supabase = await createClient()
 
-    // Kiểm tra user đã đăng nhập chưa
+    // Check if user is logged in
     const { data: { user }, error: authError } = await supabase.auth.getUser()
 
     if (authError || !user) {
@@ -32,8 +32,8 @@ export async function POST(request) {
     const body = await request.json()
     const { 
       exercise_id, 
-      lesson_id,   // New: ID của lesson
-      unit_id,     // New: ID của unit
+      lesson_id,   // New: Lesson ID
+      unit_id,     // New: Unit ID
       topic_id,    // Backward compatible
       is_correct, 
       answer_given, 
@@ -56,7 +56,7 @@ export async function POST(request) {
       )
     }
 
-    // Lưu progress
+    // Save progress
     const progressData = {
       user_id: user.id,
       exercise_id,
@@ -87,7 +87,7 @@ export async function POST(request) {
     return NextResponse.json({
       success: true,
       progress,
-      message: is_correct ? '🎉 Chính xác!' : '💡 Hãy thử lại!'
+      message: is_correct ? '🎉 Correct!' : '💡 Try again!'
     })
 
   } catch (error) {
@@ -102,7 +102,7 @@ export async function POST(request) {
  * GET /api/progress?lesson_id=123
  * GET /api/progress?unit_id=123
  * GET /api/progress?topic_id=123  (backward compatible)
- * Lấy tiến độ của user cho một lesson, unit hoặc topic
+ * Get user progress for a lesson, unit, or topic
  */
 export async function GET(request) {
   try {
@@ -113,7 +113,7 @@ export async function GET(request) {
 
     const supabase = await createClient()
 
-    // Kiểm tra user đã đăng nhập chưa
+    // Check if user is logged in
     const { data: { user }, error: authError } = await supabase.auth.getUser()
 
     if (authError || !user) {
@@ -154,7 +154,7 @@ export async function GET(request) {
       )
     }
 
-    // Tính thống kê
+    // Compute statistics
     const totalAttempts = progressList?.length || 0
     const correctCount = progressList?.filter(p => p.is_correct).length || 0
     const incorrectCount = totalAttempts - correctCount

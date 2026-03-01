@@ -1014,7 +1014,7 @@ img {
   }
 }
 
-// Subject selection grid (khi vào /grade/[slug] chưa chọn môn)
+// Subject selection grid (when navigating to /grade/[slug] without a subject selected)
 .cb-subject-select-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -1065,7 +1065,7 @@ img {
 }
 
 /* ============================================
-   Exercise Page — Làm Bài Tập
+   Exercise Page
    ============================================ */
 
 .cb-exercise-page {

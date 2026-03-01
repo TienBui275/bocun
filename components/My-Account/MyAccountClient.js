@@ -10,12 +10,12 @@ export default function MyAccountClient({ user, userProfile }) {
   const { signOut } = useAuth();
   const [activeTab, setActiveTab] = useState("profile");
 
-  const displayName = user?.user_metadata?.full_name || userProfile?.full_name || 'Chưa cập nhật';
+  const displayName = user?.user_metadata?.full_name || userProfile?.full_name || 'Not updated';
   const avatarUrl = user?.user_metadata?.avatar_url || userProfile?.avatar_url;
   const email = user?.email || '';
   const role = userProfile?.role || 'student';
   const createdAt = userProfile?.created_at 
-    ? new Date(userProfile.created_at).toLocaleDateString('vi-VN')
+    ? new Date(userProfile.created_at).toLocaleDateString('en-US')
     : 'N/A';
 
   return (
@@ -37,7 +37,7 @@ export default function MyAccountClient({ user, userProfile }) {
             <div className="cb-account-info">
               <h1>{displayName}</h1>
               <p className="email">{email}</p>
-              <span className="role-badge">{role === 'student' ? '🎓 Học viên' : '👨‍🏫 Giáo viên'}</span>
+              <span className="role-badge">{role === 'student' ? '🎓 Student' : '👨‍🏫 Teacher'}</span>
             </div>
           </div>
 
@@ -47,19 +47,19 @@ export default function MyAccountClient({ user, userProfile }) {
               className={`cb-tab ${activeTab === 'profile' ? 'active' : ''}`}
               onClick={() => setActiveTab('profile')}
             >
-              👤 Thông tin cá nhân
+              👤 Personal Info
             </button>
             <button
               className={`cb-tab ${activeTab === 'progress' ? 'active' : ''}`}
               onClick={() => setActiveTab('progress')}
             >
-              📊 Tiến độ học tập
+              📊 Learning Progress
             </button>
             <button
               className={`cb-tab ${activeTab === 'settings' ? 'active' : ''}`}
               onClick={() => setActiveTab('settings')}
             >
-              ⚙️ Cài đặt
+              ⚙️ Settings
             </button>
           </div>
 
@@ -67,10 +67,10 @@ export default function MyAccountClient({ user, userProfile }) {
           <div className="cb-account-content">
             {activeTab === 'profile' && (
               <div className="cb-profile-section">
-                <h2>Thông tin cá nhân</h2>
+                <h2>Personal Info</h2>
                 <div className="cb-info-grid">
                   <div className="cb-info-item">
-                    <label>Họ và tên:</label>
+                    <label>Full Name:</label>
                     <span>{displayName}</span>
                   </div>
                   <div className="cb-info-item">
@@ -78,18 +78,18 @@ export default function MyAccountClient({ user, userProfile }) {
                     <span>{email}</span>
                   </div>
                   <div className="cb-info-item">
-                    <label>Vai trò:</label>
-                    <span>{role === 'student' ? 'Học viên' : 'Giáo viên'}</span>
+                    <label>Role:</label>
+                    <span>{role === 'student' ? 'Student' : 'Teacher'}</span>
                   </div>
                   <div className="cb-info-item">
-                    <label>Ngày tham gia:</label>
+                    <label>Joined:</label>
                     <span>{createdAt}</span>
                   </div>
                 </div>
 
                 {user?.app_metadata?.provider === 'google' && (
                   <div className="cb-auth-info">
-                    <p>✅ Đã liên kết với Google Account</p>
+                    <p>✅ Linked with Google Account</p>
                   </div>
                 )}
               </div>
@@ -97,32 +97,32 @@ export default function MyAccountClient({ user, userProfile }) {
 
             {activeTab === 'progress' && (
               <div className="cb-progress-section">
-                <h2>Tiến độ học tập</h2>
+                <h2>Learning Progress</h2>
                 <p className="coming-soon">
-                  🚧 Tính năng đang phát triển...
+                  🚧 Feature under development...
                   <br />
-                  Bạn sẽ sớm có thể xem được:
+                  You will soon be able to see:
                 </p>
                 <ul>
-                  <li>📈 Tổng số bài tập đã hoàn thành</li>
-                  <li>⭐ Số sao đã đạt được</li>
-                  <li>🏆 Thành tích nổi bật</li>
-                  <li>📊 Biểu đồ tiến độ theo môn học</li>
+                  <li>📈 Total exercises completed</li>
+                  <li>⭐ Stars earned</li>
+                  <li>🏆 Top achievements</li>
+                  <li>📊 Progress chart by subject</li>
                 </ul>
               </div>
             )}
 
             {activeTab === 'settings' && (
               <div className="cb-settings-section">
-                <h2>Cài đặt tài khoản</h2>
+                <h2>Account Settings</h2>
                 <div className="cb-settings-group">
-                  <h3>Bảo mật</h3>
-                  <button className="cb-btn-secondary">Đổi mật khẩu</button>
+                  <h3>Security</h3>
+                  <button className="cb-btn-secondary">Change Password</button>
                 </div>
                 <div className="cb-settings-group">
-                  <h3>Tài khoản</h3>
+                  <h3>Account</h3>
                   <button className="cb-btn-danger" onClick={signOut}>
-                    🚪 Đăng xuất
+                    🚪 Sign Out
                   </button>
                 </div>
               </div>

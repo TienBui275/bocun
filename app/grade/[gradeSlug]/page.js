@@ -8,7 +8,7 @@ export async function generateMetadata({ params, searchParams }) {
     const { gradeSlug } = await params;
     const { subject: subjectSlug } = await searchParams;
     return {
-        title: `${gradeSlug} · ${subjectSlug ?? "Chọn môn"} — Cun Bo`,
+        title: `${gradeSlug} · ${subjectSlug ?? "Select Subject"}`,
     };
 }
 
@@ -35,12 +35,12 @@ export default async function GradeSubjectPage({ params, searchParams }) {
 
     if (!grade) notFound();
 
-    // Nếu không có subject → hiển thị danh sách môn học của lớp đó
+    // No subject selected → show subject list for this grade
     if (!subjectSlug || !subject) {
         return <SubjectSelectionPage grade={grade} />;
     }
 
-    // Fetch units (kèm lessons) của grade + subject
+    // Fetch units (with lessons) for grade + subject
     const { data: units, error } = await supabase
         .from("units")
         .select(`
@@ -70,7 +70,7 @@ export default async function GradeSubjectPage({ params, searchParams }) {
                 <div className="cb-breadcrumb-bar" style={{ borderColor: gradeColor }}>
                     <div className="container">
                         <nav className="cb-breadcrumb">
-                            <Link href="/" className="cb-bc-link">🏠 Trang chủ</Link>
+                            <Link href="/" className="cb-bc-link">🏠 Home</Link>
                             <span className="cb-bc-sep">›</span>
                             <span className="cb-bc-current">{grade.name}</span>
                             <span className="cb-bc-sep">›</span>
@@ -106,7 +106,7 @@ export default async function GradeSubjectPage({ params, searchParams }) {
                         {!units || units.length === 0 ? (
                             <div className="cb-empty-state">
                                 <span className="cb-empty-icon">📚</span>
-                                <p>Nội dung đang được chuẩn bị, vui lòng quay lại sau!</p>
+                                <p>Content is being prepared, please check back later!</p>
                             </div>
                         ) : (
                             <div className="cb-units-list">
@@ -153,8 +153,8 @@ export default async function GradeSubjectPage({ params, searchParams }) {
                                                             </span>
                                                             <span className="cb-lesson-exercises">
                                                                 {lesson.exercise_count > 0
-                                                                    ? `${lesson.exercise_count} bài`
-                                                                    : "Sắp có"}
+                                                                    ? `${lesson.exercise_count} exercises`
+                                                                      : "Coming Soon"}
                                                             </span>
                                                             <span className="cb-lesson-arrow" style={{ color: gradeColor }}>›</span>
                                                         </Link>
@@ -173,7 +173,7 @@ export default async function GradeSubjectPage({ params, searchParams }) {
     );
 }
 
-// Component phụ: hiển thị khi chưa chọn môn
+// Sub-component: shown when no subject is selected
 async function SubjectSelectionPage({ grade }) {
     const supabase = await createClient();
     const gradeColor = grade.color ?? "#3b82f6";
@@ -191,7 +191,7 @@ async function SubjectSelectionPage({ grade }) {
                 <div className="cb-breadcrumb-bar" style={{ borderColor: gradeColor }}>
                     <div className="container">
                         <nav className="cb-breadcrumb">
-                            <Link href="/" className="cb-bc-link">🏠 Trang chủ</Link>
+                            <Link href="/" className="cb-bc-link">🏠 Home</Link>
                             <span className="cb-bc-sep">›</span>
                             <span className="cb-bc-current">{grade.name}</span>
                         </nav>
@@ -208,7 +208,7 @@ async function SubjectSelectionPage({ grade }) {
                                 <h1 className="cb-units-title" style={{ color: gradeColor }}>
                                     {grade.name}
                                 </h1>
-                                <p className="cb-units-subtitle">Chọn môn học để xem nội dung</p>
+                                <p className="cb-units-subtitle">Select a subject to view content</p>
                             </div>
                         </div>
                     </div>
@@ -228,7 +228,7 @@ async function SubjectSelectionPage({ grade }) {
                                         <span className="cb-subject-select-icon">{sub.icon}</span>
                                         <span className="cb-subject-select-name">{sub.name}</span>
                                         <span className="cb-subject-select-meta">
-                                            {unit_count} units · {exercise_count} bài
+                                            {unit_count} units · {exercise_count} exercises
                                         </span>
                                     </Link>
                                 ) : null

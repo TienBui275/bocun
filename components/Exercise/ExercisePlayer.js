@@ -26,10 +26,10 @@ function getEffectiveOptions(exercise) {
 
     // Derive which is correct from correct_answer field (e.g. "true"/"false"/"1"/"0")
     const ca = (exercise.correct_answer ?? "").trim().toLowerCase();
-    const trueIsCorrect = ca === "true" || ca === "1" || ca === "đúng" || ca === "yes";
+    const trueIsCorrect = ca === "true" || ca === "1" || ca === "yes";
     return [
-        { id: "tf-true",  option_label: "A", option_text: "Đúng (True)",  is_correct: trueIsCorrect,  order_index: 1 },
-        { id: "tf-false", option_label: "B", option_text: "Sai (False)", is_correct: !trueIsCorrect, order_index: 2 },
+        { id: "tf-true",  option_label: "A", option_text: "True",  is_correct: trueIsCorrect,  order_index: 1 },
+        { id: "tf-false", option_label: "B", option_text: "False", is_correct: !trueIsCorrect, order_index: 2 },
     ];
 }
 
@@ -148,7 +148,7 @@ export default function ExercisePlayer({
             <div className="cb-completion-screen">
                 <div className="cb-completion-card">
                     <div className="cb-completion-emoji">🎉</div>
-                    <h2 className="cb-completion-title">Hoàn thành!</h2>
+                    <h2 className="cb-completion-title">Completed!</h2>
                     <p className="cb-completion-subtitle">
                         {lesson.lesson_number} {lesson.title.replace(lesson.lesson_number + " ", "")}
                     </p>
@@ -176,10 +176,10 @@ export default function ExercisePlayer({
                                 setHintOpen(false);
                             }}
                         >
-                            🔄 Làm lại
+                            🔄 Try Again
                         </button>
                         <Link href={unitsHref} className="cb-back-units-btn">
-                            ← Về danh sách
+                            ← Back to list
                         </Link>
                     </div>
                 </div>
@@ -244,7 +244,7 @@ export default function ExercisePlayer({
                     <div
                         className={`cb-ex-hint ${hintOpen ? "cb-ex-hint--open" : "cb-ex-hint--closed"}`}
                         onClick={() => setHintOpen((v) => !v)}
-                        title={hintOpen ? "Ẩn gợi ý" : "Xem gợi ý"}
+                        title={hintOpen ? "Hide hint" : "Show hint"}
                         style={{ cursor: "pointer" }}
                     >
                         <span className="cb-ex-hint-icon">💡</span>
@@ -269,7 +269,7 @@ export default function ExercisePlayer({
                                 if (!submitted) setUserAnswer(e.target.value);
                             }}
                             onKeyDown={handleKeyDown}
-                            placeholder="Nhập đáp án..."
+                            placeholder="Enter answer..."
                             autoFocus
                             disabled={submitted}
                         />
@@ -325,7 +325,7 @@ export default function ExercisePlayer({
                         onClick={handleSubmit}
                         disabled={!canSubmit}
                     >
-                        Kiểm tra đáp án
+                        Check Answer
                     </button>
                 )}
 
@@ -333,7 +333,7 @@ export default function ExercisePlayer({
                 {submitted && isCorrect && (
                     <div className="cb-feedback-correct">
                         <span className="cb-feedback-icon">🎉</span>
-                        <span className="cb-feedback-text">Chính xác! Tuyệt vời!</span>
+                        <span className="cb-feedback-text">Correct! Well done!</span>
                     </div>
                 )}
 
@@ -342,14 +342,14 @@ export default function ExercisePlayer({
                     <div className="cb-feedback-wrong">
                         <div className="cb-feedback-header">
                             <span className="cb-feedback-icon">💡</span>
-                            <strong>Hướng dẫn giải</strong>
+                            <strong>Solution Guide</strong>
                         </div>
                         <div className="cb-feedback-explanation">
                             {exercise.explanation
                                 ? exercise.explanation.split("\n").map((line, i) => (
                                       <p key={i}>{line}</p>
                                   ))
-                                : "Xem lại đáp án đúng ở trên."}
+                                : "Review the correct answer above."}
                         </div>
                         <button className="cb-got-it-btn" onClick={advance}>
                             Got It →

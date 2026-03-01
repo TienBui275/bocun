@@ -10,7 +10,7 @@ export default async function MyAccountPage() {
     redirect('/login')
   }
 
-  // Lấy thông tin user từ public.users table
+  // Get user info from public.users table
   const { data: userProfile } = await supabase
     .from('users')
     .select('*')

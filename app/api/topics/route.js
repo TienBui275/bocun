@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server'
 
 /**
  * GET /api/topics?grade=pre-k&subject=toan
- * Lấy danh sách topics theo grade và subject
+ * Get list of topics by grade and subject
  */
 export async function GET(request) {
   try {
@@ -20,7 +20,7 @@ export async function GET(request) {
 
     const supabase = await createClient()
 
-    // Lấy grade_id từ slug
+    // Get grade_id from slug
     const { data: grade, error: gradeError } = await supabase
       .from('grades')
       .select('id, name, slug, color, badge_label')
@@ -35,7 +35,7 @@ export async function GET(request) {
       )
     }
 
-    // Lấy subject_id từ slug
+    // Get subject_id from slug
     const { data: subject, error: subjectError } = await supabase
       .from('subjects')
       .select('id, name, slug, icon, color')
@@ -50,7 +50,7 @@ export async function GET(request) {
       )
     }
 
-    // Lấy topics
+    // Get topics
     const { data: topics, error: topicsError } = await supabase
       .from('topics')
       .select('*')

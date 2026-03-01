@@ -35,7 +35,7 @@ const GradeCard = ({ grade }) => {
                                 href={`/grade/${grade.slug}?subject=${subject.slug}`}
                                 className="cb-stat-link"
                             >
-                                {subject.exercise_count || 0} bài tập &gt;
+                                {subject.exercise_count || 0} exercises &gt;
                             </Link>
                         </div>
                     </div>
@@ -48,7 +48,7 @@ const GradeCard = ({ grade }) => {
 const GradeCardsWithDB = async () => {
     const supabase = await createClient();
 
-    // Lấy tất cả grades
+    // Get all grades
     const { data: grades, error: gradesError } = await supabase
         .from("grades")
         .select("id, name, slug, badge_label, color, description, level_order")
@@ -57,10 +57,10 @@ const GradeCardsWithDB = async () => {
 
     if (gradesError) {
         console.error("Error fetching grades:", gradesError);
-        return <div>Không thể tải dữ liệu lớp học</div>;
+        return <div>Unable to load grade data</div>;
     }
 
-    // Lấy tất cả subjects
+    // Get all subjects
     const { data: subjects, error: subjectsError } = await supabase
         .from("subjects")
         .select("id, name, slug, icon")
@@ -70,7 +70,7 @@ const GradeCardsWithDB = async () => {
         console.error("Error fetching subjects:", subjectsError);
     }
 
-    // Lấy grade_subjects (thống kê)
+    // Get grade_subjects (statistics)
     const { data: gradeSubjects, error: gsError } = await supabase
         .from("grade_subjects")
         .select("grade_id, subject_id, unit_count, lesson_count, exercise_count")
@@ -80,7 +80,7 @@ const GradeCardsWithDB = async () => {
         console.error("Error fetching grade_subjects:", gsError);
     }
 
-    // Kết hợp dữ liệu: mỗi grade có danh sách subjects với thống kê
+    // Combine data: each grade has a list of subjects with statistics
     const gradesWithSubjects = grades?.map((grade) => {
         const gradeSubjectsList = subjects
             ?.map((subject) => {
@@ -88,7 +88,7 @@ const GradeCardsWithDB = async () => {
                     (gs) => gs.grade_id === grade.id && gs.subject_id === subject.id
                 );
                 
-                if (!stats) return null; // Không hiện subject nếu chưa có data
+                if (!stats) return null; // Skip subject if no data yet
 
                 return {
                     ...subject,
@@ -97,7 +97,7 @@ const GradeCardsWithDB = async () => {
                     exercise_count: stats.exercise_count || 0,
                 };
             })
-            .filter(Boolean); // Loại bỏ null
+            .filter(Boolean); // Remove nulls
 
         return {
             ...grade,
@@ -109,8 +109,8 @@ const GradeCardsWithDB = async () => {
         <section className="cb-grades-section" id="grades">
             <div className="container">
                 <div className="cb-section-title">
-                    <h2>🎓 Chọn lớp của bạn</h2>
-                    <p>Chọn cấp độ phù hợp và bắt đầu hành trình học tập thú vị!</p>
+                    <h2>🎓 Choose Your Grade</h2>
+                    <p>Pick the right level and start your exciting learning journey!</p>
                 </div>
                 <div className="cb-grades-grid">
                     {gradesWithSubjects.map((grade) => (

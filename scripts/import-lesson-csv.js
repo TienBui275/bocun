@@ -63,7 +63,7 @@ function parseArgs(argv) {
 
     const value = argv[index + 1]
     if (!value || value.startsWith('--')) {
-      throw new Error(`Thiếu giá trị cho --${key}`)
+      throw new Error(`Missing value for --${key}`)
     }
 
     args[key] = value
@@ -157,18 +157,18 @@ function inferFromFilename(filePath) {
 async function resolveGradeId(stageValue) {
   const stageNumber = Number(stageValue)
   if (!Number.isFinite(stageNumber)) {
-    throw new Error(`Stage không hợp lệ: ${stageValue}`)
+    throw new Error(`Invalid Stage: ${stageValue}`)
   }
 
   const slugCandidates = [`stage-${stageNumber}`, `lop-${stageNumber}`]
-  const nameCandidates = [`stage ${stageNumber}`, `lớp ${stageNumber}`]
+  const nameCandidates = [`stage ${stageNumber}`, `grade ${stageNumber}`]
 
   const { data, error } = await supabase
     .from('grades')
     .select('id, slug, name')
 
   if (error) {
-    throw new Error(`Không lấy được grades: ${error.message}`)
+    throw new Error(`Error fetching grades: ${error.message}`)
   }
 
   const grade =
@@ -176,7 +176,7 @@ async function resolveGradeId(stageValue) {
     data.find((row) => nameCandidates.includes(String(row.name).toLowerCase()))
 
   if (!grade) {
-    throw new Error(`Không tìm thấy grade cho Stage ${stageNumber}`)
+    throw new Error(`Grade not found for Stage ${stageNumber}`)
   }
 
   return grade
@@ -192,7 +192,7 @@ function normalizeText(value) {
 async function resolveSubjectId(subjectValue) {
   const subjectInput = String(subjectValue || '').trim()
   if (!subjectInput) {
-    throw new Error('Subject trống')
+    throw new Error('Subject is empty')
   }
 
   const normalizedInput = normalizeText(subjectInput)
@@ -202,7 +202,7 @@ async function resolveSubjectId(subjectValue) {
     .select('id, slug, name')
 
   if (error) {
-    throw new Error(`Không lấy được subjects: ${error.message}`)
+    throw new Error(`Error fetching subjects: ${error.message}`)
   }
 
   const subject = data.find((row) => {
@@ -212,7 +212,7 @@ async function resolveSubjectId(subjectValue) {
   })
 
   if (!subject) {
-    throw new Error(`Không tìm thấy subject: ${subjectInput}`)
+    throw new Error(`Subject not found: ${subjectInput}`)
   }
 
   return subject
@@ -221,7 +221,7 @@ async function resolveSubjectId(subjectValue) {
 async function resolveUnitAndLesson(gradeId, subjectId, unitNumber, lessonNumber) {
   const unitNo = Number(unitNumber)
   if (!Number.isFinite(unitNo)) {
-    throw new Error(`Unit number không hợp lệ: ${unitNumber}`)
+    throw new Error(`Invalid unit number: ${unitNumber}`)
   }
 
   const { data: unit, error: unitError } = await supabase
@@ -233,7 +233,7 @@ async function resolveUnitAndLesson(gradeId, subjectId, unitNumber, lessonNumber
     .single()
 
   if (unitError || !unit) {
-    throw new Error(`Không tìm thấy Unit ${unitNo} cho grade_id=${gradeId}, subject_id=${subjectId}`)
+    throw new Error(`Unit ${unitNo} not found for grade_id=${gradeId}, subject_id=${subjectId}`)
   }
 
   const { data: lesson, error: lessonError } = await supabase
@@ -244,7 +244,7 @@ async function resolveUnitAndLesson(gradeId, subjectId, unitNumber, lessonNumber
     .single()
 
   if (lessonError || !lesson) {
-    throw new Error(`Không tìm thấy Lesson ${lessonNumber} trong Unit ${unitNo}`)
+    throw new Error(`Lesson ${lessonNumber} not found in Unit ${unitNo}`)
   }
 
   return { unit, lesson }
@@ -312,28 +312,28 @@ async function recomputeCounters(gradeId, subjectId, lessonId) {
 
 function validateRows(rows) {
   if (!rows.length) {
-    throw new Error('CSV không có dòng dữ liệu')
+    throw new Error('CSV has no data rows')
   }
 
   for (const row of rows) {
     if (!Number.isFinite(row.order_index)) {
-      throw new Error('Có dòng thiếu order_index hoặc order_index không phải số')
+      throw new Error('A row is missing order_index or order_index is not a number')
     }
 
     if (!row.question) {
-      throw new Error(`Q${row.order_index}: thiếu question`)
+      throw new Error(`Q${row.order_index}: missing question`)
     }
 
     if (!row.question_type) {
-      throw new Error(`Q${row.order_index}: thiếu question_type`)
+      throw new Error(`Q${row.order_index}: missing question_type`)
     }
 
     if (row.question_type === 'multiple_choice') {
       if (!row.option_a || !row.option_b) {
-        console.warn(`⚠️  Q${row.order_index}: multiple_choice nhưng thiếu option_a/option_b — options sẽ không được import`)
+        console.warn(`⚠️  Q${row.order_index}: multiple_choice but missing option_a/option_b — options will not be imported`)
       }
       if (!row.correct_option) {
-        console.warn(`⚠️  Q${row.order_index}: multiple_choice nhưng thiếu correct_option — không biết đáp án đúng`)
+        console.warn(`⚠️  Q${row.order_index}: multiple_choice but missing correct_option — correct answer unknown`)
       }
     }
   }
@@ -352,7 +352,7 @@ async function upsertMultipleChoiceOptions(exerciseId, row) {
   ].filter((o) => o.text)
 
   if (optionDefs.length === 0) {
-    console.log(`   ⚠️  Q${row.order_index}: multiple_choice nhưng không có option_a/b/c/d trong CSV — bỏ qua`)
+    console.log(`   ⚠️  Q${row.order_index}: multiple_choice but no option_a/b/c/d in CSV — skipping`)
     return
   }
 
@@ -385,20 +385,20 @@ async function upsertTrueFalseOptions(exerciseId, correctAnswer) {
   await supabase.from('exercise_options').delete().eq('exercise_id', exerciseId)
 
   const ca = String(correctAnswer ?? '').trim().toLowerCase()
-  const trueIsCorrect = ca === 'true' || ca === '1' || ca === 'yes' || ca === 'đúng'
+  const trueIsCorrect = ca === 'true' || ca === '1' || ca === 'yes'
 
   const { error } = await supabase.from('exercise_options').insert([
     {
       exercise_id:  exerciseId,
       option_label: 'A',
-      option_text:  'Đúng (True)',
+      option_text:  'True',
       is_correct:   trueIsCorrect,
       order_index:  1,
     },
     {
       exercise_id:  exerciseId,
       option_label: 'B',
-      option_text:  'Sai (False)',
+      option_text:  'False',
       is_correct:   !trueIsCorrect,
       order_index:  2,
     },
@@ -411,19 +411,19 @@ async function upsertTrueFalseOptions(exerciseId, correctAnswer) {
 
 async function main() {
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
-    throw new Error('Thiếu NEXT_PUBLIC_SUPABASE_URL hoặc SUPABASE_SERVICE_ROLE_KEY trong .env.local')
+    throw new Error('Missing NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY in .env.local')
   }
 
   const cli = parseArgs(process.argv.slice(2))
 
   if (!cli.file) {
     usage()
-    throw new Error('Thiếu --file')
+    throw new Error('Missing --file')
   }
 
   const absCsvPath = path.resolve(cli.file)
   if (!fs.existsSync(absCsvPath)) {
-    throw new Error(`Không tìm thấy file: ${absCsvPath}`)
+    throw new Error(`File not found: ${absCsvPath}`)
   }
 
   const inferred = inferFromFilename(absCsvPath)
@@ -435,7 +435,7 @@ async function main() {
 
   if (!stage || !subject || !unit || !lesson) {
     usage()
-    throw new Error('Thiếu metadata. Cần đủ stage, subject, unit, lesson (hoặc tên file đúng chuẩn để auto-detect).')
+    throw new Error('Missing metadata. Need stage, subject, unit, lesson (or a correctly named file for auto-detect).')
   }
 
   const csvContent = fs.readFileSync(absCsvPath, 'utf8')
@@ -481,7 +481,7 @@ async function main() {
       .maybeSingle()
 
     if (findError) {
-      console.log(`❌ Q${row.order_index}: lỗi tìm bài hiện có - ${findError.message}`)
+      console.log(`❌ Q${row.order_index}: error finding existing exercise - ${findError.message}`)
       continue
     }
 
@@ -539,7 +539,7 @@ async function main() {
   }
 
   if (cli.dryRun) {
-    console.log('\n✅ Dry-run hoàn tất. Không có thay đổi trên database.')
+    console.log('\n✅ Dry-run complete. No changes made to database.')
     return
   }
 

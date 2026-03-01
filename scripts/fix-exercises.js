@@ -1,8 +1,8 @@
-// Script bổ sung dữ liệu còn thiếu trong bảng exercises
-// Thực hiện:
-//   1. Xóa exercises 1-5 (test data cũ, không có lesson_id)
-//   2. Thêm options cho exercise 35 (multiple_choice thiếu options)
-//   3. Thêm hint cho exercises 25-55
+// Script to supplement missing data in the exercises table
+// Actions:
+//   1. Delete exercises 1-5 (old test data, no lesson_id)
+//   2. Add options for exercise 35 (multiple_choice missing options)
+//   3. Add hints for exercises 25-55
 
 const { createClient } = require('@supabase/supabase-js');
 
@@ -12,7 +12,7 @@ const SUPABASE_SERVICE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzd
 const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
 
 // =====================================================================
-// HINTS CHO TỪng EXERCISE
+// HINTS FOR EACH EXERCISE
 // Lesson 7: Counting and sequences (IDs 25-41)
 // Lesson 8: More on negative numbers (IDs 42-55)
 // =====================================================================
@@ -51,9 +51,9 @@ const HINTS = {
 };
 
 // =====================================================================
-// OPTIONS CHO EXERCISE 35 (multiple_choice - chưa có options)
+// OPTIONS FOR EXERCISE 35 (multiple_choice - no options yet)
 // Q: Is Abdul correct that subtracting 3 from 397 will eventually reach 0?
-// Đáp án: No (397 mod 3 = 1, nên sẽ tới 1 chứ không phải 0)
+// Answer: No (397 mod 3 = 1, so it reaches 1, not 0)
 // =====================================================================
 const OPTIONS_35 = [
   { option_label: 'A', option_text: 'Yes, Abdul is correct', is_correct: false, order_index: 1 },
@@ -62,24 +62,24 @@ const OPTIONS_35 = [
 
 async function run() {
   console.log('============================================');
-  console.log('BỔ SUNG DỮ LIỆU EXERCISES - SUPABASE');
+  console.log('SUPPLEMENT EXERCISE DATA - SUPABASE');
   console.log('============================================\n');
 
   // -------------------------------------------------------------------
-  // BƯỚC 1: Xóa exercises 1-5 (test data cũ, không có lesson_id)
+  // STEP 1: Delete exercises 1-5 (old test data, no lesson_id)
   // -------------------------------------------------------------------
-  console.log('⚙️  Bước 1: Xóa exercises 1-5 (test data cũ)...');
+  console.log('⚙️  Step 1: Delete exercises 1-5 (old test data)...');
 
-  // Xóa options trước (exercise_options có FK tới exercises)
+  // Delete options first (exercise_options has FK to exercises)
   const { error: delOptErr } = await supabase
     .from('exercise_options')
     .delete()
     .in('exercise_id', [1, 2, 3, 4, 5]);
 
   if (delOptErr) {
-    console.error('  ❌ Lỗi xóa options của exercises 1-5:', delOptErr.message);
+    console.error('  ❌ Error deleting options of exercises 1-5:', delOptErr.message);
   } else {
-    console.log('  ✅ Đã xóa options của exercises 1-5');
+    console.log('  ✅ Deleted options of exercises 1-5');
   }
 
   const { error: delExErr } = await supabase
@@ -88,15 +88,15 @@ async function run() {
     .in('id', [1, 2, 3, 4, 5]);
 
   if (delExErr) {
-    console.error('  ❌ Lỗi xóa exercises 1-5:', delExErr.message);
+    console.error('  ❌ Error deleting exercises 1-5:', delExErr.message);
   } else {
-    console.log('  ✅ Đã xóa exercises 1-5\n');
+    console.log('  ✅ Deleted exercises 1-5\n');
   }
 
   // -------------------------------------------------------------------
-  // BƯỚC 2: Thêm options cho exercise 35
+  // STEP 2: Add options for exercise 35
   // -------------------------------------------------------------------
-  console.log('⚙️  Bước 2: Thêm options cho exercise 35...');
+  console.log('⚙️  Step 2: Add options for exercise 35...');
 
   const optionsToInsert = OPTIONS_35.map(opt => ({
     exercise_id: 35,
@@ -108,15 +108,15 @@ async function run() {
     .insert(optionsToInsert);
 
   if (insOptErr) {
-    console.error('  ❌ Lỗi thêm options cho exercise 35:', insOptErr.message);
+    console.error('  ❌ Error adding options for exercise 35:', insOptErr.message);
   } else {
-    console.log('  ✅ Đã thêm 2 options (Yes / No) cho exercise 35\n');
+    console.log('  ✅ Added 2 options (Yes / No) for exercise 35\n');
   }
 
   // -------------------------------------------------------------------
-  // BƯỚC 3: Cập nhật hints cho exercises 25-55
+  // STEP 3: Update hints for exercises 25-55
   // -------------------------------------------------------------------
-  console.log('⚙️  Bước 3: Cập nhật hints cho exercises 25-55...');
+  console.log('⚙️  Step 3: Update hints for exercises 25-55...');
 
   let successCount = 0;
   let failCount = 0;
@@ -136,14 +136,14 @@ async function run() {
     }
   }
 
-  console.log(`  ✅ Đã cập nhật hint cho ${successCount} exercises`);
-  if (failCount > 0) console.log(`  ❌ Thất bại: ${failCount} exercises`);
+  console.log(`  ✅ Updated hints for ${successCount} exercises`);
+  if (failCount > 0) console.log(`  ❌ Failed: ${failCount} exercises`);
 
   // -------------------------------------------------------------------
-  // BƯỚC 4: Kiểm tra lại sau khi cập nhật
+  // STEP 4: Verify after update
   // -------------------------------------------------------------------
   console.log('\n============================================');
-  console.log('KIỂM TRA LẠI SAU KHI CẬP NHẬT');
+  console.log('VERIFY AFTER UPDATE');
   console.log('============================================');
 
   const { data: exercises, error: verifyErr } = await supabase
@@ -152,7 +152,7 @@ async function run() {
     .order('id');
 
   if (verifyErr) {
-    console.error('Lỗi khi verify:', verifyErr.message);
+    console.error('Error verifying:', verifyErr.message);
     return;
   }
 
@@ -186,12 +186,12 @@ async function run() {
   }
 
   if (issues === 0) {
-    console.log(`\n✅ Tất cả ${exercises.length} exercises đều đầy đủ dữ liệu!`);
+    console.log(`\n✅ All ${exercises.length} exercises have complete data!`);
   } else {
-    console.log(`\n⚠️  Còn ${issues} exercises có vấn đề.`);
+    console.log(`\n⚠️  ${issues} exercises still have issues.`);
   }
 
-  console.log(`\nTổng số exercises hiện tại: ${exercises.length}`);
+  console.log(`\nTotal exercises currently: ${exercises.length}`);
 }
 
 run().catch(console.error);

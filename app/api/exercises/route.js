@@ -4,7 +4,7 @@ import { NextResponse } from 'next/server'
 /**
  * GET /api/exercises?lesson_id=123
  * GET /api/exercises?topic_id=123  (backward compatible)
- * Lấy danh sách exercises của một lesson hoặc topic (kèm theo options)
+ * Get list of exercises for a lesson or topic (with options)
  */
 export async function GET(request) {
   try {
@@ -28,7 +28,7 @@ export async function GET(request) {
 
     // Prioritize lesson_id over topic_id
     if (lessonId) {
-      // Lấy lesson info
+      // Get lesson info
       const { data: lesson, error: lessonError } = await supabase
         .from('lessons')
         .select(`
@@ -56,7 +56,7 @@ export async function GET(request) {
       filterId = lessonId
 
     } else if (topicId) {
-      // Backward compatible: Lấy topic info
+      // Backward compatible: Get topic info
       const { data: topic, error: topicError } = await supabase
         .from('topics')
         .select(`
@@ -81,7 +81,7 @@ export async function GET(request) {
       filterId = topicId
     }
 
-    // Lấy exercises kèm options
+    // Get exercises with options
     const { data: exercises, error: exercisesError } = await supabase
       .from('exercises')
       .select(`

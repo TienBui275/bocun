@@ -1,6 +1,6 @@
 /**
  * run-migration.js
- * Chạy SQL migration trực tiếp lên Supabase qua pg-meta endpoint
+ * Run SQL migration directly to Supabase via pg-meta endpoint
  * Usage: node scripts/run-migration.js supabase/migrations/004_topic_id_nullable.sql
  */
 const fs = require('fs')
@@ -12,18 +12,18 @@ const SERVICE_KEY  = process.env.SUPABASE_SERVICE_ROLE_KEY
 
 async function runMigration(sqlFilePath) {
   if (!SUPABASE_URL || !SERVICE_KEY) {
-    console.error('❌ Thiếu NEXT_PUBLIC_SUPABASE_URL hoặc SUPABASE_SERVICE_ROLE_KEY trong .env.local')
+    console.error('❌ Missing NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY in .env.local')
     process.exit(1)
   }
 
   const absPath = path.resolve(sqlFilePath)
   if (!fs.existsSync(absPath)) {
-    console.error(`❌ File không tồn tại: ${absPath}`)
+    console.error(`❌ File does not exist: ${absPath}`)
     process.exit(1)
   }
 
   const sql = fs.readFileSync(absPath, 'utf8')
-  console.log(`📄 Chạy migration: ${sqlFilePath}\n`)
+  console.log(`📄 Running migration: ${sqlFilePath}\n`)
 
   // Supabase pg-meta endpoint (available for all hosted projects)
   const endpoint = `${SUPABASE_URL}/rest/v1/rpc/exec_sql`
@@ -66,15 +66,15 @@ async function runMigration(sqlFilePath) {
       const text = await res.text()
       // Ignore "column already has NOT NULL" and similar benign errors
       if (text.includes('does not exist') || text.includes('already')) {
-        console.log(`    ⏭️  Bỏ qua (không cần thiết): ${text.slice(0, 80)}`)
+        console.log(`    ⏭️  Skipped (not necessary): ${text.slice(0, 80)}`)
         successCount++
       } else {
-        console.error(`    ❌ Lỗi: ${text.slice(0, 200)}`)
+        console.error(`    ❌ Error: ${text.slice(0, 200)}`)
       }
     }
   }
 
-  console.log(`\n✅ Hoàn tất! ${successCount}/${statements.length} statements thành công.`)
+  console.log(`\n✅ Done! ${successCount}/${statements.length} statements succeeded.`)
 }
 
 const sqlFile = process.argv[2]

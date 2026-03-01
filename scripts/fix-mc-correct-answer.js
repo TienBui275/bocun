@@ -1,4 +1,4 @@
-// Fix exercise 35: set correct_answer = NULL (multiple_choice dùng exercise_options.is_correct, không dùng correct_answer)
+// Fix exercise 35: set correct_answer = NULL (multiple_choice uses exercise_options.is_correct, not correct_answer)
 const { createClient } = require('@supabase/supabase-js');
 const supabase = createClient(
   'https://oehylgyeplocedqcuyza.supabase.co',
@@ -6,15 +6,15 @@ const supabase = createClient(
 );
 
 async function run() {
-  // Kiểm tra trước
+  // Check before
   const { data: before } = await supabase
     .from('exercises')
     .select('id, question_type, correct_answer')
     .eq('id', 35)
     .single();
-  console.log('Trước:', before);
+  console.log('Before:', before);
 
-  // Fix: set correct_answer = NULL cho tất cả multiple_choice và true_false
+  // Fix: set correct_answer = NULL for all multiple_choice and true_false
   const { data, error } = await supabase
     .from('exercises')
     .update({ correct_answer: null })
@@ -22,13 +22,13 @@ async function run() {
     .select('id, question_type, correct_answer');
 
   if (error) {
-    console.error('Lỗi:', error.message);
+    console.error('Error:', error.message);
     return;
   }
 
-  console.log('Đã fix:', data);
-  console.log('\n✅ correct_answer = NULL cho tất cả multiple_choice/true_false exercises.');
-  console.log('   Đáp án đúng được xác định qua exercise_options.is_correct = true.');
+  console.log('Fixed:', data);
+  console.log('\n✅ correct_answer = NULL for all multiple_choice/true_false exercises.');
+  console.log('   Correct answer is determined via exercise_options.is_correct = true.');
 }
 
 run().catch(console.error);

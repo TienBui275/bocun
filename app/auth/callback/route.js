@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server'
 
 /**
  * Auth Callback Route
- * Xử lý callback từ Google OAuth và các provider khác
+ * Handle callback from Google OAuth and other providers
  */
 export async function GET(request) {
   const requestUrl = new URL(request.url)
@@ -18,13 +18,13 @@ export async function GET(request) {
     
     if (error) {
       console.error('Auth callback error:', error.message)
-      // Redirect về login page với error message
+      // Redirect to login page with error message
       return NextResponse.redirect(
         new URL(`/login?error=${encodeURIComponent(error.message)}`, requestUrl.origin)
       )
     }
   }
 
-  // Redirect về trang đã chỉ định hoặc homepage
+  // Redirect to specified page or homepage
   return NextResponse.redirect(new URL(next, requestUrl.origin))
 }

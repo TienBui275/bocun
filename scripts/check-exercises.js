@@ -1,4 +1,4 @@
-// Script kiểm tra và bổ sung dữ liệu exercises trong Supabase
+// Script to check and supplement exercise data in Supabase
 // Usage: node scripts/check-exercises.js
 
 const { createClient } = require('@supabase/supabase-js');
@@ -10,10 +10,10 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
 
 async function checkExercises() {
   console.log('====================================');
-  console.log('KIỂM TRA EXERCISES TRONG DATABASE');
+  console.log('CHECK EXERCISES IN DATABASE');
   console.log('====================================\n');
 
-  // 1. Lấy tất cả exercises
+  // 1. Get all exercises
   const { data: exercises, error: exErr } = await supabase
     .from('exercises')
     .select(`
@@ -25,20 +25,20 @@ async function checkExercises() {
     .order('id');
 
   if (exErr) {
-    console.error('Lỗi khi lấy exercises:', exErr.message);
+    console.error('Error fetching exercises:', exErr.message);
     return;
   }
 
-  console.log(`Tổng số exercises: ${exercises.length}\n`);
+  console.log(`Total exercises: ${exercises.length}\n`);
 
-  // 2. Lấy tất cả exercise_options
+  // 2. Get all exercise_options
   const { data: options, error: optErr } = await supabase
     .from('exercise_options')
     .select('exercise_id, option_label, option_text, is_correct, order_index')
     .order('exercise_id, order_index');
 
   if (optErr) {
-    console.error('Lỗi khi lấy options:', optErr.message);
+    console.error('Error fetching options:', optErr.message);
     return;
   }
 
@@ -49,68 +49,68 @@ async function checkExercises() {
     optionMap[opt.exercise_id].push(opt);
   }
 
-  // 3. Phân tích từng exercise
+  // 3. Analyze each exercise
   const issues = {
     missingHint: [],
     missingExplanation: [],
-    missingCorrectAnswer: [],  // fill_blank không có correct_answer
-    missingOptions: [],        // multiple_choice/true_false không có options
-    missingCorrectOption: [],  // options không có is_correct = true
+    missingCorrectAnswer: [],  // fill_blank without correct_answer
+    missingOptions: [],        // multiple_choice/true_false without options
+    missingCorrectOption: [],  // options without is_correct = true
     noLessonId: [],
   };
 
   for (const ex of exercises) {
-    // Kiểm tra lesson_id
+    // Check lesson_id
     if (!ex.lesson_id) issues.noLessonId.push(ex.id);
 
-    // Kiểm tra hint
+    // Check hint
     if (!ex.hint || ex.hint.trim() === '') issues.missingHint.push(ex.id);
 
-    // Kiểm tra explanation
+    // Check explanation
     if (!ex.explanation || ex.explanation.trim() === '') issues.missingExplanation.push(ex.id);
 
-    // Kiểm tra correct_answer cho fill_blank
+    // Check correct_answer for fill_blank
     if (ex.question_type === 'fill_blank') {
       if (!ex.correct_answer || ex.correct_answer.trim() === '') {
         issues.missingCorrectAnswer.push(ex.id);
       }
     }
 
-    // Kiểm tra options cho multiple_choice và true_false
+    // Check options for multiple_choice and true_false
     if (ex.question_type === 'multiple_choice' || ex.question_type === 'true_false') {
       const exOptions = optionMap[ex.id] || [];
       if (exOptions.length === 0) {
         issues.missingOptions.push(ex.id);
       } else {
-        // Kiểm tra xem có đáp án đúng không
+        // Check if there is a correct answer
         const hasCorrect = exOptions.some(o => o.is_correct === true);
         if (!hasCorrect) issues.missingCorrectOption.push(ex.id);
       }
     }
   }
 
-  // 4. Báo cáo
-  console.log('📊 KẾT QUẢ KIỂM TRA:');
+  // 4. Report
+  console.log('📊 CHECK RESULTS:');
   console.log('-----------------------------------');
-  console.log(`❌ Thiếu hint:           ${issues.missingHint.length} exercises`);
+  console.log(`❌ Missing hint:           ${issues.missingHint.length} exercises`);
   if (issues.missingHint.length > 0) console.log(`   IDs: ${issues.missingHint.join(', ')}`);
 
-  console.log(`❌ Thiếu explanation:    ${issues.missingExplanation.length} exercises`);
+  console.log(`❌ Missing explanation:    ${issues.missingExplanation.length} exercises`);
   if (issues.missingExplanation.length > 0) console.log(`   IDs: ${issues.missingExplanation.join(', ')}`);
 
-  console.log(`❌ Thiếu correct_answer: ${issues.missingCorrectAnswer.length} fill_blank exercises`);
+  console.log(`❌ Missing correct_answer: ${issues.missingCorrectAnswer.length} fill_blank exercises`);
   if (issues.missingCorrectAnswer.length > 0) console.log(`   IDs: ${issues.missingCorrectAnswer.join(', ')}`);
 
-  console.log(`❌ Thiếu options:        ${issues.missingOptions.length} multiple_choice/true_false exercises`);
+  console.log(`❌ Missing options:        ${issues.missingOptions.length} multiple_choice/true_false exercises`);
   if (issues.missingOptions.length > 0) console.log(`   IDs: ${issues.missingOptions.join(', ')}`);
 
-  console.log(`❌ Options thiếu đáp án đúng: ${issues.missingCorrectOption.length} exercises`);
+  console.log(`❌ Options missing correct answer: ${issues.missingCorrectOption.length} exercises`);
   if (issues.missingCorrectOption.length > 0) console.log(`   IDs: ${issues.missingCorrectOption.join(', ')}`);
 
-  console.log(`❌ Không có lesson_id:   ${issues.noLessonId.length} exercises`);
+  console.log(`❌ No lesson_id:           ${issues.noLessonId.length} exercises`);
   if (issues.noLessonId.length > 0) console.log(`   IDs: ${issues.noLessonId.join(', ')}`);
   
-  // 5. In chi tiết từng exercise có vấn đề
+  // 5. Print details of each problematic exercise
   const problematic = new Set([
     ...issues.missingHint,
     ...issues.missingExplanation,
@@ -120,7 +120,7 @@ async function checkExercises() {
   ]);
 
   if (problematic.size > 0) {
-    console.log(`\n📋 CHI TIẾT ${problematic.size} EXERCISES CÓ VẤN ĐỀ:`);
+    console.log(`\n📋 DETAILS OF ${problematic.size} PROBLEMATIC EXERCISES:`);
     console.log('===================================');
 
     for (const ex of exercises) {
@@ -145,10 +145,10 @@ async function checkExercises() {
       }
     }
   } else {
-    console.log('\n✅ Tất cả exercises đều đầy đủ dữ liệu!');
+    console.log('\n✅ All exercises have complete data!');
   }
 
-  // 6. Thống kê theo lesson
+  // 6. Statistics by lesson
   const { data: lessons, error: lesErr } = await supabase
     .from('lessons')
     .select(`
@@ -158,7 +158,7 @@ async function checkExercises() {
     .order('id');
 
   if (!lesErr && lessons) {
-    console.log('\n📚 PHÂN BỐ EXERCISES THEO LESSON:');
+    console.log('\n📚 EXERCISE DISTRIBUTION BY LESSON:');
     console.log('===================================');
     for (const lesson of lessons) {
       const lessonExercises = exercises.filter(e => e.lesson_id === lesson.id);

@@ -23,7 +23,7 @@ async function run() {
     optMap[o.exercise_id].push(o);
   }
 
-  console.log(`Tổng MC/TF exercises: ${exs.length}\n`);
+  console.log(`Total MC/TF exercises: ${exs.length}\n`);
 
   let missingCount = 0;
   for (const ex of exs) {
@@ -31,7 +31,7 @@ async function run() {
     const missing = exOpts.length === 0;
     if (missing) missingCount++;
 
-    console.log(`ID ${ex.id} [${ex.question_type}] – ${exOpts.length} options ${missing ? '❌ THIẾU OPTIONS' : '✅'}`);
+    console.log(`ID ${ex.id} [${ex.question_type}] – ${exOpts.length} options ${missing ? '❌ MISSING OPTIONS' : '✅'}`);
     console.log(`  Q: ${ex.question.substring(0, 100)}`);
     if (exOpts.length > 0) {
       exOpts.forEach(o => console.log(`    ${o.is_correct ? '✅' : '  '} ${o.option_label}: ${o.option_text}`));
@@ -39,7 +39,7 @@ async function run() {
     console.log();
   }
 
-  console.log(`\nTổng số exercises THIẾU options: ${missingCount}`);
+  console.log(`\nTotal exercises MISSING options: ${missingCount}`);
 }
 
 run().catch(console.error);

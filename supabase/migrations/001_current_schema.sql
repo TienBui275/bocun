@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS public.users (
 );
 
 -- ================================================================
--- 2. GRADES (cấp lớp)
+-- 2. GRADES (grade level)
 -- ================================================================
 CREATE TABLE IF NOT EXISTS public.grades (
   id           SERIAL       PRIMARY KEY,
@@ -35,11 +35,11 @@ CREATE TABLE IF NOT EXISTS public.grades (
 );
 
 -- ================================================================
--- 3. SUBJECTS (môn học)
+-- 3. SUBJECTS (subject)
 -- ================================================================
 CREATE TABLE IF NOT EXISTS public.subjects (
   id        SERIAL    PRIMARY KEY,
-  name      VARCHAR   NOT NULL,       -- 'Toán', 'Khoa Học', 'Tiếng Anh'
+  name      VARCHAR   NOT NULL,       -- 'Math', 'Science', 'English'
   slug      VARCHAR   UNIQUE NOT NULL,
   icon      VARCHAR(10),
   color     VARCHAR(20),
@@ -47,21 +47,21 @@ CREATE TABLE IF NOT EXISTS public.subjects (
 );
 
 -- ================================================================
--- 4. GRADE_SUBJECTS (môn học theo lớp – thống kê tổng hợp)
+-- 4. GRADE_SUBJECTS (subjects per grade – aggregate statistics)
 -- ================================================================
 CREATE TABLE IF NOT EXISTS public.grade_subjects (
   id             SERIAL   PRIMARY KEY,
   grade_id       INTEGER  NOT NULL REFERENCES public.grades(id)   ON DELETE CASCADE,
   subject_id     INTEGER  NOT NULL REFERENCES public.subjects(id) ON DELETE CASCADE,
-  unit_count     INTEGER  DEFAULT 0,   -- số units
-  lesson_count   INTEGER  DEFAULT 0,   -- số lessons
-  exercise_count INTEGER  DEFAULT 0,   -- tổng số bài tập
+  unit_count     INTEGER  DEFAULT 0,   -- number of units
+  lesson_count   INTEGER  DEFAULT 0,   -- number of lessons
+  exercise_count INTEGER  DEFAULT 0,   -- total number of exercises
   is_active      BOOLEAN  DEFAULT true,
   UNIQUE(grade_id, subject_id)
 );
 
 -- ================================================================
--- 5. UNITS (đơn vị học)
+-- 5. UNITS (learning unit)
 -- ================================================================
 CREATE TABLE IF NOT EXISTS public.units (
   id            SERIAL       PRIMARY KEY,
@@ -80,7 +80,7 @@ CREATE TABLE IF NOT EXISTS public.units (
 );
 
 -- ================================================================
--- 6. LESSONS (bài học trong mỗi unit)
+-- 6. LESSONS (lesson within each unit)
 -- ================================================================
 CREATE TABLE IF NOT EXISTS public.lessons (
   id             SERIAL       PRIMARY KEY,
@@ -98,7 +98,7 @@ CREATE TABLE IF NOT EXISTS public.lessons (
 );
 
 -- ================================================================
--- 7. EXERCISES (bài tập)
+-- 7. EXERCISES (exercise)
 -- ================================================================
 CREATE TABLE IF NOT EXISTS public.exercises (
   id             SERIAL       PRIMARY KEY,
@@ -124,7 +124,7 @@ CREATE TABLE IF NOT EXISTS public.exercises (
 );
 
 -- ================================================================
--- 8. EXERCISE_OPTIONS (đáp án cho multiple_choice / true_false)
+-- 8. EXERCISE_OPTIONS (answer options for multiple_choice / true_false)
 -- ================================================================
 CREATE TABLE IF NOT EXISTS public.exercise_options (
   id               SERIAL    PRIMARY KEY,
@@ -137,7 +137,7 @@ CREATE TABLE IF NOT EXISTS public.exercise_options (
 );
 
 -- ================================================================
--- 9. STUDENT_PROGRESS (kết quả từng câu làm)
+-- 9. STUDENT_PROGRESS (per-question answer result)
 -- ================================================================
 CREATE TABLE IF NOT EXISTS public.student_progress (
   id                   SERIAL       PRIMARY KEY,
@@ -155,7 +155,7 @@ CREATE TABLE IF NOT EXISTS public.student_progress (
 );
 
 -- ================================================================
--- 10. LESSON_COMPLETIONS (hoàn thành bài học)
+-- 10. LESSON_COMPLETIONS (lesson completion)
 -- ================================================================
 CREATE TABLE IF NOT EXISTS public.lesson_completions (
   id               SERIAL       PRIMARY KEY,
@@ -171,7 +171,7 @@ CREATE TABLE IF NOT EXISTS public.lesson_completions (
 );
 
 -- ================================================================
--- 11. UNIT_COMPLETIONS (hoàn thành unit)
+-- 11. UNIT_COMPLETIONS (unit completion)
 -- ================================================================
 CREATE TABLE IF NOT EXISTS public.unit_completions (
   id                  SERIAL       PRIMARY KEY,
@@ -348,7 +348,7 @@ ON CONFLICT (slug) DO UPDATE SET
 -- SEED DATA – Subjects
 -- ================================================================
 INSERT INTO public.subjects (name, slug, icon, color) VALUES
-  ('Toán',       'toan',      '🔢', '#3b82f6'),
-  ('Khoa Học',   'khoa-hoc',  '🔬', '#10b981'),
-  ('Tiếng Anh',  'tieng-anh', '🔤', '#f59e0b')
+  ('Math',        'toan',      '🔢', '#3b82f6'),
+  ('Science',     'khoa-hoc',  '🔬', '#10b981'),
+  ('English',     'tieng-anh', '🔤', '#f59e0b')
 ON CONFLICT (slug) DO NOTHING;

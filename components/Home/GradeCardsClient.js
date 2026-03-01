@@ -14,7 +14,7 @@ const GradeCard = ({ grade }) => {
                 <h3 className="cb-grade-name">{grade.name}</h3>
             </div>
 
-            <p className="cb-grade-desc">{grade.description || "Nội dung đang cập nhật..."}</p>
+            <p className="cb-grade-desc">{grade.description || "Content coming soon..."}</p>
 
             <div className="cb-divider" />
 
@@ -37,7 +37,7 @@ const GradeCard = ({ grade }) => {
                                 href={`/grade/${grade.slug}?subject=${subject.slug}`}
                                 className="cb-stat-link"
                             >
-                                {subject.exercise_count || 0} bài tập &gt;
+                                {subject.exercise_count || 0} exercises &gt;
                             </Link>
                         </div>
                     </div>
@@ -78,8 +78,8 @@ const GradeCardsClient = () => {
             <section className="cb-grades-section" id="grades">
                 <div className="container">
                     <div className="cb-section-title">
-                        <h2>🎓 Chọn lớp của bạn</h2>
-                        <p>Đang tải dữ liệu...</p>
+                        <h2>🎓 Choose Your Grade</h2>
+                        <p>Loading...</p>
                     </div>
                 </div>
             </section>
@@ -91,8 +91,8 @@ const GradeCardsClient = () => {
             <section className="cb-grades-section" id="grades">
                 <div className="container">
                     <div className="cb-section-title">
-                        <h2>🎓 Chọn lớp của bạn</h2>
-                        <p style={{ color: "red" }}>Lỗi: {error}</p>
+                        <h2>🎓 Choose Your Grade</h2>
+                        <p style={{ color: "red" }}>Error: {error}</p>
                     </div>
                 </div>
             </section>
@@ -103,8 +103,8 @@ const GradeCardsClient = () => {
         <section className="cb-grades-section" id="grades">
             <div className="container">
                 <div className="cb-section-title">
-                    <h2>🎓 Chọn lớp của bạn</h2>
-                    <p>Chọn cấp độ phù hợp và bắt đầu hành trình học tập thú vị!</p>
+                    <h2>🎓 Choose Your Grade</h2>
+                    <p>Pick the right level and start your exciting learning journey!</p>
                 </div>
                 <div className="cb-grades-grid">
                     {grades.map((grade) => (

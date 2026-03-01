@@ -3,18 +3,18 @@ import { createClient } from '@/lib/supabase/server'
 export default async function TestDBPage() {
   const supabase = await createClient()
 
-  // Lấy danh sách grades
+  // Get list of grades
   const { data: grades, error: gradesError } = await supabase
     .from('grades')
     .select('*')
     .order('level_order')
 
-  // Lấy danh sách subjects
+  // Get list of subjects
   const { data: subjects, error: subjectsError } = await supabase
     .from('subjects')
     .select('*')
 
-  // Lấy danh sách topics
+  // Get list of topics
   const { data: topics, error: topicsError } = await supabase
     .from('topics')
     .select(`
@@ -39,7 +39,7 @@ export default async function TestDBPage() {
     <div style={{ padding: '2rem', fontFamily: 'sans-serif', maxWidth: '1200px', margin: '0 auto' }}>
       <h1>✅ Database Connection Test - Cun Bo Project</h1>
       <p style={{ color: '#666', marginBottom: '2rem' }}>
-        Kiểm tra kết nối database đã thành công! Dưới đây là dữ liệu từ Supabase.
+        Database connection successful! Here is the data from Supabase.
       </p>
 
       {/* Grades Section */}
@@ -140,7 +140,7 @@ export default async function TestDBPage() {
           📝 Topics ({topics?.length || 0})
         </h2>
         {topicsError ? (
-          <p style={{ color: '#999' }}>Chưa có topics nào. Hãy chạy seed script!</p>
+          <p style={{ color: '#999' }}>No topics found. Please run the seed script!</p>
         ) : (
           <div style={{ display: 'grid', gap: '1rem' }}>
             {topics?.map(topic => (
@@ -162,7 +162,7 @@ export default async function TestDBPage() {
                 <div style={{ display: 'flex', gap: '1rem', fontSize: '0.8rem', color: '#999' }}>
                   <span>📚 {topic.grades?.name}</span>
                   <span>📖 {topic.subjects?.name}</span>
-                  <span>📊 {topic.exercise_count} bài tập</span>
+                  <span>📊 {topic.exercise_count} exercises</span>
                   <span>🔢 Order: {topic.order_index}</span>
                 </div>
               </div>
@@ -181,7 +181,7 @@ export default async function TestDBPage() {
       }}>
         <h3 style={{ margin: '0 0 0.5rem 0', color: '#059669' }}>✅ Database Connection OK</h3>
         <p style={{ margin: 0, fontSize: '0.9rem', color: '#047857' }}>
-          Kết nối đến Supabase thành công! Bạn có thể bắt đầu phát triển ứng dụng.
+          Connected to Supabase successfully! You can start developing the application.
         </p>
       </section>
     </div>

@@ -1,21 +1,21 @@
 # Scripts - Cun Bo Project
 
-## ✅ Bộ script tổng quát (giữ lại)
+## ✅ General-purpose scripts (kept)
 
-### 1) `import-lesson-csv.js` (khuyến nghị)
-Import/cập nhật exercises từ CSV vào đúng Stage + Subject + Unit + Lesson.
+### 1) `import-lesson-csv.js` (recommended)
+Import/update exercises from CSV into the correct Stage + Subject + Unit + Lesson.
 
 ```bash
 node scripts/import-lesson-csv.js --file data/Math_Stage_4_Unit_1_Lesson_1.2.csv
 ```
 
-Hỗ trợ:
-- Auto-detect từ tên file: `<Subject>_Stage_<N>_Unit_<N>_Lesson_<N.N>.csv`
-- `--dry-run` để validate không ghi DB
-- Tự sync ảnh lên Supabase Storage và đổi `image_url` sang public URL (mặc định)
-- Dùng `--skip-image-sync` nếu muốn bỏ qua bước ảnh
+Supports:
+- Auto-detect from filename: `<Subject>_Stage_<N>_Unit_<N>_Lesson_<N.N>.csv`
+- `--dry-run` to validate without writing to DB
+- Auto sync images to Supabase Storage and update `image_url` to public URL (default)
+- Use `--skip-image-sync` to skip the image step
 
-Ví dụ đầy đủ:
+Full example:
 
 ```bash
 node scripts/import-lesson-csv.js \
@@ -27,29 +27,29 @@ node scripts/import-lesson-csv.js \
 ```
 
 ### 2) `upload-exercise-images.js`
-Upload ảnh từ thư mục local lên Supabase Storage và convert các `image_url` dạng `images/...`.
+Upload images from a local directory to Supabase Storage and convert `image_url` entries of the form `images/...`.
 
 ```bash
 node scripts/upload-exercise-images.js
 ```
 
 ### 3) `seed-grade-subjects.js`
-Recompute/upsert `grade_subjects` dựa trên dữ liệu thực tế trong `units`, `lessons`, `exercises`.
+Recompute/upsert `grade_subjects` based on actual data in `units`, `lessons`, `exercises`.
 
 ```bash
 node scripts/seed-grade-subjects.js
 ```
 
 ### 4) `run-migration.js`
-Chạy file SQL migration trực tiếp.
+Run a SQL migration file directly.
 
 ```bash
 node scripts/run-migration.js supabase/migrations/005_update_grades_to_english.sql
 ```
 
-## 🧹 Ghi chú dọn dẹp
+## 🧹 Cleanup notes
 
-Các script one-off/legacy đã được loại bỏ để tránh trùng chức năng và giảm rủi ro vận hành sai:
-- script seed dữ liệu mẫu cũ
-- script import hard-code theo 1 lesson cụ thể
-- script update dữ liệu dùng một lần
+The following one-off/legacy scripts have been removed to avoid duplicate functionality and reduce the risk of incorrect operations:
+- old sample data seed script
+- hard-coded import script for a single lesson
+- one-time data update script

@@ -3,13 +3,13 @@ import { NextResponse } from 'next/server'
 
 /**
  * GET /api/grades-with-subjects
- * Lấy danh sách grades kèm subjects và thống kê
+ * Get list of grades with subjects and statistics
  */
 export async function GET() {
   try {
     const supabase = await createClient()
 
-    // Lấy tất cả grades
+    // Get all grades
     const { data: grades, error: gradesError } = await supabase
       .from('grades')
       .select('id, name, slug, badge_label, color, description, level_order')
@@ -23,19 +23,19 @@ export async function GET() {
       )
     }
 
-    // Lấy tất cả subjects
+    // Get all subjects
     const { data: subjects } = await supabase
       .from('subjects')
       .select('id, name, slug, icon')
       .eq('is_active', true)
 
-    // Lấy grade_subjects (thống kê)
+    // Get grade_subjects (statistics)
     const { data: gradeSubjects } = await supabase
       .from('grade_subjects')
       .select('grade_id, subject_id, unit_count, lesson_count, exercise_count')
       .eq('is_active', true)
 
-    // Kết hợp dữ liệu
+    // Combine data
     const gradesWithSubjects = grades?.map((grade) => {
       const gradeSubjectsList = subjects
         ?.map((subject) => {

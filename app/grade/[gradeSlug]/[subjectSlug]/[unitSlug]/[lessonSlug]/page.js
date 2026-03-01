@@ -97,7 +97,7 @@ export default async function LessonExercisePage({ params }) {
                 <div className="cb-ex-breadcrumb-bar">
                     <div className="container">
                         <nav className="cb-breadcrumb">
-                            <Link href="/" className="cb-bc-link">🏠 Trang chủ</Link>
+                            <Link href="/" className="cb-bc-link">🏠 Home</Link>
                             <span className="cb-bc-sep">›</span>
                             <Link href={`/grade/${gradeSlug}`} className="cb-bc-link">{grade.name}</Link>
                             <span className="cb-bc-sep">›</span>
@@ -118,9 +118,9 @@ export default async function LessonExercisePage({ params }) {
                         {!exercisesWithSortedOptions.length ? (
                             <div className="cb-empty-state">
                                 <span className="cb-empty-icon">📝</span>
-                                <p>Bài tập đang được chuẩn bị, vui lòng quay lại sau!</p>
+                                <p>Exercises are being prepared, please check back later!</p>
                                 <Link href={unitsHref} className="cb-ex-back-link">
-                                    ← Quay lại danh sách
+                                    ← Back to list
                                 </Link>
                             </div>
                         ) : (

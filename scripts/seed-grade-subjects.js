@@ -7,9 +7,9 @@ const supabase = createClient(
 )
 
 async function seedGradeSubjects() {
-  console.log('🌱 Bắt đầu seed grade_subjects...\n')
+  console.log('🌱 Starting seed grade_subjects...\n')
 
-  // Lấy tất cả grades và subjects
+  // Get all grades and subjects
   const { data: grades } = await supabase
     .from('grades')
     .select('id, slug, name')
@@ -18,14 +18,14 @@ async function seedGradeSubjects() {
     .from('subjects')
     .select('id, slug, name')
 
-  console.log(`✅ Tìm thấy ${grades?.length} grades và ${subjects?.length} subjects\n`)
+  console.log(`✅ Found ${grades?.length} grades and ${subjects?.length} subjects\n`)
 
-  // Tạo grade_subjects cho mỗi combo (tất cả grades có 3 subjects)
+  // Create grade_subjects for each combo (all grades have 3 subjects)
   const gradeSubjectsData = []
   
   for (const grade of grades || []) {
     for (const subject of subjects || []) {
-      // Lấy thống kê thực tế từ units
+      // Get actual statistics from units
       const { data: units } = await supabase
         .from('units')
         .select('id')
@@ -36,11 +36,11 @@ async function seedGradeSubjects() {
       const unitCount = units?.length || 0
 
       if (unitCount === 0) {
-        console.log(`  ⚠️  Bỏ qua: ${grade.name} - ${subject.name} (chưa có units)`)
+        console.log(`  ⚠️  Skipping: ${grade.name} - ${subject.name} (no units yet)`)
         continue
       }
 
-      // Lấy lesson count
+      // Get lesson count
       const unitIds = units?.map(u => u.id) || []
       const { data: lessons } = await supabase
         .from('lessons')
@@ -50,7 +50,7 @@ async function seedGradeSubjects() {
 
       const lessonCount = lessons?.length || 0
 
-      // Lấy exercise count
+      // Get exercise count
       const lessonIds = lessons?.map(l => l.id) || []
       const { data: exercises } = await supabase
         .from('exercises')
@@ -81,12 +81,12 @@ async function seedGradeSubjects() {
       })
 
     if (error) {
-      console.error('❌ Lỗi khi insert grade_subjects:', error.message)
+      console.error('❌ Error inserting grade_subjects:', error.message)
     } else {
-      console.log(`\n✅ Đã tạo ${gradeSubjectsData.length} grade_subjects!`)
+      console.log(`\n✅ Created ${gradeSubjectsData.length} grade_subjects!`)
     }
   } else {
-    console.log('\n⚠️  Không có dữ liệu để seed. Hãy import dữ liệu lessons/exercises trước (ví dụ: node scripts/import-lesson-csv.js --file <csv>).')
+    console.log('\n⚠️  No data to seed. Please import lessons/exercises first (e.g. node scripts/import-lesson-csv.js --file <csv>).')
   }
 
   console.log('')
@@ -94,10 +94,10 @@ async function seedGradeSubjects() {
 
 seedGradeSubjects()
   .then(() => {
-    console.log('👍 Script hoàn tất!')
+    console.log('👍 Script complete!')
     process.exit(0)
   })
   .catch((error) => {
-    console.error('❌ Lỗi:', error.message)
+    console.error('❌ Error:', error.message)
     process.exit(1)
   })

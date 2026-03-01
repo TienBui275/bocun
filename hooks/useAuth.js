@@ -76,7 +76,7 @@ export function useAuth() {
                 setError(error.message);
                 setIsLoading(false);
             }
-            // Note: Không set isLoading = false ở đây vì browser sẽ redirect
+            // Note: Do not set isLoading = false here because the browser will redirect
         } catch (err) {
             setError(err.message);
             setIsLoading(false);
@@ -99,7 +99,7 @@ export function useAuth() {
                 setError(error.message);
                 return { error: error.message };
             }
-            return { success: "Vui lòng kiểm tra email để xác nhận tài khoản" };
+            return { success: "Please check your email to confirm your account" };
         } catch (err) {
             setError(err.message);
             return { error: err.message };
@@ -119,7 +119,7 @@ export function useAuth() {
                 setError(error.message);
                 return { error: error.message };
             }
-            return { success: "Email đặt lại mật khẩu đã được gửi. Vui lòng kiểm tra hộp thư của bạn." };
+            return { success: "Password reset email sent. Please check your inbox." };
         } catch (err) {
             setError(err.message);
             return { error: err.message };
