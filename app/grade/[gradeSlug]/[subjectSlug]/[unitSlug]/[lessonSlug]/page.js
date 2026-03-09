@@ -75,7 +75,7 @@ export default async function LessonExercisePage({ params }) {
         console.error("Error fetching exercises:", exError);
     }
 
-    const gradeColor = grade.color ?? "#3b82f6";
+    const gradeColor = "#FF8A00";
     const unitsHref = `/grade/${gradeSlug}?subject=${subjectSlug}`;
 
     // Sort options inside each exercise

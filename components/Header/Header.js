@@ -46,7 +46,7 @@ const Header = () => {
                             </>
                         ) : (
                             <Link href="/login" className="cb-btn-login">
-                                🔑 Log In
+                                Log In
                             </Link>
                         )}
                     </div>

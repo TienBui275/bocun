@@ -18,7 +18,7 @@
   align-items: center;
   gap: 2rem;
   padding: 2rem;
-  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  background: linear-gradient(135deg, #FF8A00 0%, #FF6B00 100%);
   color: white;
 
   .cb-account-avatar {
@@ -88,12 +88,12 @@
     position: relative;
 
     &:hover {
-      background: rgba(59, 130, 246, 0.05);
-      color: #3b82f6;
+      background: rgba(255, 138, 0, 0.05);
+      color: #FF8A00;
     }
 
     &.active {
-      color: #3b82f6;
+      color: #FF8A00;
       background: white;
 
       &::after {
@@ -103,7 +103,7 @@
         left: 0;
         right: 0;
         height: 2px;
-        background: #3b82f6;
+        background: #FF8A00;
       }
     }
   }
@@ -136,7 +136,7 @@
       padding: 1.25rem;
       background: #f8fafc;
       border-radius: 12px;
-      border-left: 4px solid #3b82f6;
+      border-left: 4px solid #FF8A00;
 
       label {
         display: block;
@@ -190,7 +190,7 @@
       border-radius: 8px;
       font-size: 1rem;
       color: #334155;
-      border-left: 3px solid #3b82f6;
+      border-left: 3px solid #FF8A00;
     }
   }
 }

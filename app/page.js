@@ -5,12 +5,11 @@ import GradeCards from "@/components/Home/GradeCards";
 const HeroSection = () => (
   <section className="cb-hero">
     <div className="container">
-      <div className="cb-hero-badge">
-        ✨ The #1 learning platform for elementary school students
-      </div>
       <h1 className="cb-hero-title">
-        Learn <span className="highlight">smarter</span>,<br />
-        Grow <span className="highlight">faster</span>!
+        <span className="highlight" style={{ display: 'inline-block' }}>
+          Learn Smarter,<br />
+          Grow Faster!
+        </span>
       </h1>
       <p className="cb-hero-desc">
         Over <strong>1,000+</strong> interactive exercises for Math, Science, and English
@@ -23,6 +22,11 @@ const HeroSection = () => (
         <span>✏️</span>
         <span>🏆</span>
       </div>
+    </div>
+    <div className="cb-hero-wave">
+      <svg viewBox="0 0 1440 120" preserveAspectRatio="none" style={{ display: 'block', width: '100%', height: '100px' }}>
+        <path d="M0,64L80,69.3C160,75,320,85,480,80C640,75,800,53,960,48C1120,43,1280,53,1360,58.7L1440,64L1440,120L1360,120C1280,120,1120,120,960,120C800,120,640,120,480,120C320,120,160,120,80,120L0,120Z" fill="#FFF4E5"></path>
+      </svg>
     </div>
   </section>
 );

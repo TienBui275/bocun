@@ -8,19 +8,21 @@
     width: 20px;
     height: 20px;
     border: 2px solid #e5e7eb;
-    border-top-color: #3b82f6;
+    border-top-color: #FF8A00;
     border-radius: 50%;
     animation: spin 0.6s linear infinite;
   }
 
   @keyframes spin {
-    to { transform: rotate(360deg); }
+    to {
+      transform: rotate(360deg);
+    }
   }
 }
 
 .cb-login-btn {
   padding: 0.6rem 1.5rem;
-  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  background: linear-gradient(135deg, #FF8A00, #FF6B00);
   color: white;
   border: none;
   border-radius: 8px;
@@ -30,7 +32,7 @@
 
   &:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    box-shadow: 0 4px 12px rgba(255, 138, 0, 0.3);
   }
 }
 
@@ -59,7 +61,7 @@
     height: 40px;
     border-radius: 50%;
     overflow: hidden;
-    border: 2px solid #3b82f6;
+    border: 2px solid #FF8A00;
 
     img {
       width: 100%;
@@ -73,7 +75,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      background: linear-gradient(135deg, #3b82f6, #2563eb);
+      background: linear-gradient(135deg, #FF8A00, #FF6B00);
       color: white;
       font-weight: 700;
       font-size: 1.2rem;

@@ -44,33 +44,33 @@ export default async function TestDBPage() {
 
       {/* Grades Section */}
       <section style={{ marginBottom: '3rem' }}>
-        <h2 style={{ 
-          fontSize: '1.5rem', 
+        <h2 style={{
+          fontSize: '1.5rem',
           marginBottom: '1rem',
-          borderBottom: '2px solid #3b82f6',
+          borderBottom: '2px solid #FF8A00',
           paddingBottom: '0.5rem'
         }}>
           📚 Grades ({grades?.length || 0})
         </h2>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '1rem' }}>
           {grades?.map(grade => (
-            <div 
+            <div
               key={grade.id}
               style={{
                 padding: '1rem',
                 border: '2px solid #e5e7eb',
                 borderRadius: '8px',
-                backgroundColor: grade.color + '15',
-                borderLeftColor: grade.color,
+                backgroundColor: '#FF8A00' + '15',
+                borderLeftColor: '#FF8A00',
                 borderLeftWidth: '4px'
               }}
             >
-              <div style={{ 
+              <div style={{
                 display: 'inline-block',
                 width: '32px',
                 height: '32px',
                 borderRadius: '50%',
-                backgroundColor: grade.color,
+                backgroundColor: '#FF8A00',
                 color: 'white',
                 textAlign: 'center',
                 lineHeight: '32px',
@@ -93,8 +93,8 @@ export default async function TestDBPage() {
 
       {/* Subjects Section */}
       <section style={{ marginBottom: '3rem' }}>
-        <h2 style={{ 
-          fontSize: '1.5rem', 
+        <h2 style={{
+          fontSize: '1.5rem',
           marginBottom: '1rem',
           borderBottom: '2px solid #10b981',
           paddingBottom: '0.5rem'
@@ -103,7 +103,7 @@ export default async function TestDBPage() {
         </h2>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '1rem' }}>
           {subjects?.map(subject => (
-            <div 
+            <div
               key={subject.id}
               style={{
                 padding: '1.5rem',
@@ -131,8 +131,8 @@ export default async function TestDBPage() {
 
       {/* Topics Section */}
       <section>
-        <h2 style={{ 
-          fontSize: '1.5rem', 
+        <h2 style={{
+          fontSize: '1.5rem',
           marginBottom: '1rem',
           borderBottom: '2px solid #f59e0b',
           paddingBottom: '0.5rem'
@@ -144,7 +144,7 @@ export default async function TestDBPage() {
         ) : (
           <div style={{ display: 'grid', gap: '1rem' }}>
             {topics?.map(topic => (
-              <div 
+              <div
                 key={topic.id}
                 style={{
                   padding: '1rem',
@@ -172,10 +172,10 @@ export default async function TestDBPage() {
       </section>
 
       {/* Connection Info */}
-      <section style={{ 
-        marginTop: '3rem', 
-        padding: '1rem', 
-        backgroundColor: '#ecfdf5', 
+      <section style={{
+        marginTop: '3rem',
+        padding: '1rem',
+        backgroundColor: '#ecfdf5',
         borderRadius: '8px',
         border: '1px solid #10b981'
       }}>

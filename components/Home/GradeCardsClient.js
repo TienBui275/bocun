@@ -57,7 +57,7 @@ const GradeCardsClient = () => {
             try {
                 const res = await fetch("/api/grades-with-subjects");
                 const data = await res.json();
-                
+
                 if (data.success) {
                     setGrades(data.grades);
                 } else {

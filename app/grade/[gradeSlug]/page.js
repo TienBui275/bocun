@@ -59,7 +59,7 @@ export default async function GradeSubjectPage({ params, searchParams }) {
         console.error("Error fetching units:", error);
     }
 
-    const gradeColor = grade.color ?? "#3b82f6";
+    const gradeColor = "#FF8A00";
 
     return (
         <>
@@ -154,7 +154,7 @@ export default async function GradeSubjectPage({ params, searchParams }) {
                                                             <span className="cb-lesson-exercises">
                                                                 {lesson.exercise_count > 0
                                                                     ? `${lesson.exercise_count} exercises`
-                                                                      : "Coming Soon"}
+                                                                    : "Coming Soon"}
                                                             </span>
                                                             <span className="cb-lesson-arrow" style={{ color: gradeColor }}>›</span>
                                                         </Link>
@@ -176,7 +176,7 @@ export default async function GradeSubjectPage({ params, searchParams }) {
 // Sub-component: shown when no subject is selected
 async function SubjectSelectionPage({ grade }) {
     const supabase = await createClient();
-    const gradeColor = grade.color ?? "#3b82f6";
+    const gradeColor = "#FF8A00";
 
     const { data: gradeSubjects } = await supabase
         .from("grade_subjects")

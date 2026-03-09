@@ -102,8 +102,7 @@ const GradeCards = async () => {
         <section className="cb-grades-section" id="grades">
             <div className="container">
                 <div className="cb-section-title">
-                    <h2>🎓 Choose Your Grade</h2>
-                    <p>Pick the right level and start your exciting learning journey!</p>
+                    <h2>Choose Your Grade</h2>
                 </div>
                 <div className="cb-grades-grid">
                     {gradesWithSubjects.map((grade) => (

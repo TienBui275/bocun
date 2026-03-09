@@ -3,6 +3,8 @@
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 // ─── helpers ────────────────────────────────────────────────
 function checkAnswer(exercise, userAnswer) {
@@ -28,7 +30,7 @@ function getEffectiveOptions(exercise) {
     const ca = (exercise.correct_answer ?? "").trim().toLowerCase();
     const trueIsCorrect = ca === "true" || ca === "1" || ca === "yes";
     return [
-        { id: "tf-true",  option_label: "A", option_text: "True",  is_correct: trueIsCorrect,  order_index: 1 },
+        { id: "tf-true", option_label: "A", option_text: "True", is_correct: trueIsCorrect, order_index: 1 },
         { id: "tf-false", option_label: "B", option_text: "False", is_correct: !trueIsCorrect, order_index: 2 },
     ];
 }
@@ -67,6 +69,11 @@ export default function ExercisePlayer({
     const [finished, setFinished] = useState(false);
     const [visible, setVisible] = useState(true); // for fade animation
     const [hintOpen, setHintOpen] = useState(false);
+    const [reportOpen, setReportOpen] = useState(false);
+    const [reportReason, setReportReason] = useState("other");
+    const [reportContent, setReportContent] = useState("");
+    const [reportSubmitting, setReportSubmitting] = useState(false);
+    const [reportDone, setReportDone] = useState(false);
 
     const exercise = exercises[currentIndex];
     const isFillBlank = exercise?.question_type === "fill_blank";
@@ -133,6 +140,34 @@ export default function ExercisePlayer({
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [submitted, isCorrect]);
+
+    // ── submit report ────────────────────────────────────────────
+    async function handleReport() {
+        if (!reportContent.trim() || reportSubmitting) return;
+        setReportSubmitting(true);
+        try {
+            await fetch("/api/reports", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    exercise_id: exercise.id,
+                    reason: reportReason,
+                    content: reportContent,
+                }),
+            });
+            setReportDone(true);
+            setReportContent("");
+            setReportReason("other");
+            setTimeout(() => {
+                setReportOpen(false);
+                setReportDone(false);
+            }, 1800);
+        } catch {
+            // silently fail
+        } finally {
+            setReportSubmitting(false);
+        }
+    }
 
     // ── handle Enter key in fill_blank input ────────────────────
     function handleKeyDown(e) {
@@ -205,6 +240,17 @@ export default function ExercisePlayer({
 
             {/* Card */}
             <div className="cb-ex-card">
+                {/* Report button */}
+                <button
+                    className="cb-report-btn"
+                    onClick={() => {
+                        setReportOpen(true);
+                        setReportDone(false);
+                    }}
+                    title="Report an issue with this exercise"
+                >
+                    🚩
+                </button>
                 {/* Difficulty badge */}
                 <div className="cb-ex-meta">
                     <span className="cb-ex-lesson-tag">
@@ -219,9 +265,9 @@ export default function ExercisePlayer({
 
                 {/* Question */}
                 <div className="cb-ex-question">
-                    {exercise.question.split("\n").map((line, i) => (
-                        <p key={i}>{line}</p>
-                    ))}
+                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                        {(exercise.question ?? "").replace(/\\n/g, "\n")}
+                    </ReactMarkdown>
                 </div>
 
                 {/* Exercise image */}
@@ -257,13 +303,12 @@ export default function ExercisePlayer({
                     <div className="cb-fill-wrap">
                         <input
                             type="text"
-                            className={`cb-fill-input ${
-                                submitted
+                            className={`cb-fill-input ${submitted
                                     ? isCorrect
                                         ? "cb-fill-correct"
                                         : "cb-fill-wrong"
                                     : ""
-                            }`}
+                                }`}
                             value={userAnswer}
                             onChange={(e) => {
                                 if (!submitted) setUserAnswer(e.target.value);
@@ -345,11 +390,13 @@ export default function ExercisePlayer({
                             <strong>Solution Guide</strong>
                         </div>
                         <div className="cb-feedback-explanation">
-                            {exercise.explanation
-                                ? exercise.explanation.split("\n").map((line, i) => (
-                                      <p key={i}>{line}</p>
-                                  ))
-                                : "Review the correct answer above."}
+                            {exercise.explanation ? (
+                                <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                                    {exercise.explanation.replace(/\\n/g, "\n")}
+                                </ReactMarkdown>
+                            ) : (
+                                "Review the correct answer above."
+                            )}
                         </div>
                         <button className="cb-got-it-btn" onClick={advance}>
                             Got It →
@@ -357,6 +404,61 @@ export default function ExercisePlayer({
                     </div>
                 )}
             </div>
+
+            {/* Report modal */}
+            {reportOpen && (
+                <div className="cb-report-overlay" onClick={(e) => { if (e.target === e.currentTarget) setReportOpen(false); }}>
+                    <div className="cb-report-modal">
+                        <div className="cb-report-modal-header">
+                            <span>🚩 Report an Issue</span>
+                            <button className="cb-report-close" onClick={() => setReportOpen(false)}>✕</button>
+                        </div>
+
+                        {reportDone ? (
+                            <div className="cb-report-success">
+                                <span>✅</span>
+                                <p>Thank you! Your report has been submitted.</p>
+                            </div>
+                        ) : (
+                            <>
+                                <div className="cb-report-field">
+                                    <label className="cb-report-label">Reason</label>
+                                    <select
+                                        className="cb-report-select"
+                                        value={reportReason}
+                                        onChange={(e) => setReportReason(e.target.value)}
+                                    >
+                                        <option value="wrong_answer">Wrong answer</option>
+                                        <option value="typo">Typo / spelling error</option>
+                                        <option value="unclear">Unclear question</option>
+                                        <option value="broken_image">Broken image</option>
+                                        <option value="other">Other</option>
+                                    </select>
+                                </div>
+
+                                <div className="cb-report-field">
+                                    <label className="cb-report-label">Description</label>
+                                    <textarea
+                                        className="cb-report-textarea"
+                                        rows={4}
+                                        placeholder="Describe the issue..."
+                                        value={reportContent}
+                                        onChange={(e) => setReportContent(e.target.value)}
+                                    />
+                                </div>
+
+                                <button
+                                    className="cb-report-submit"
+                                    onClick={handleReport}
+                                    disabled={!reportContent.trim() || reportSubmitting}
+                                >
+                                    {reportSubmitting ? "Submitting..." : "Submit Report"}
+                                </button>
+                            </>
+                        )}
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

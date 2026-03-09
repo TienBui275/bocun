@@ -87,7 +87,7 @@ const GradeCardsWithDB = async () => {
                 const stats = gradeSubjects?.find(
                     (gs) => gs.grade_id === grade.id && gs.subject_id === subject.id
                 );
-                
+
                 if (!stats) return null; // Skip subject if no data yet
 
                 return {
