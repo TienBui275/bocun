@@ -86,6 +86,19 @@ export default async function LessonExercisePage({ params }) {
         ),
     }));
 
+    // Fetch progress details if user is logged in
+    const { data: { user } } = await supabase.auth.getUser();
+    let exerciseResults = [];
+    if (user) {
+        const { data: er } = await supabase
+            .from("exercise_results")
+            .select("exercise_id, is_correct")
+            .eq("user_id", user.id)
+            .eq("lesson_id", lesson.id);
+
+        if (er) exerciseResults = er;
+    }
+
     return (
         <>
             <Header />
@@ -126,6 +139,7 @@ export default async function LessonExercisePage({ params }) {
                         ) : (
                             <ExercisePlayer
                                 exercises={exercisesWithSortedOptions}
+                                exerciseResults={exerciseResults}
                                 lesson={lesson}
                                 unit={unit}
                                 grade={grade}

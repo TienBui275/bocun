@@ -3,178 +3,150 @@ import { NextResponse } from 'next/server'
 
 /**
  * POST /api/progress
- * Save student exercise result
- * 
+ * Save one exercise answer via the atomic RPC submit_exercise_answer().
+ *
  * Body: {
- *   exercise_id: number,
- *   lesson_id?: number,      // New
- *   unit_id?: number,        // New
- *   topic_id?: number,       // Backward compatible
- *   is_correct: boolean,
- *   answer_given: string,
- *   time_spent_seconds?: number
+ *   exercise_id : number   – required
+ *   lesson_id   : number   – required
+ *   unit_id     : number   – required
+ *   is_correct  : boolean  – required
+ *   hint_used   : boolean  – optional, default false
+ *   time_secs   : number   – optional, seconds spent on this question
  * }
  */
 export async function POST(request) {
   try {
     const supabase = await createClient()
 
-    // Check if user is logged in
     const { data: { user }, error: authError } = await supabase.auth.getUser()
-
     if (authError || !user) {
-      return NextResponse.json(
-        { error: 'Unauthorized - Please login first' },
-        { status: 401 }
-      )
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     const body = await request.json()
-    const { 
-      exercise_id, 
-      lesson_id,   // New: Lesson ID
-      unit_id,     // New: Unit ID
-      topic_id,    // Backward compatible
-      is_correct, 
-      answer_given, 
-      time_spent_seconds 
+    const {
+      exercise_id,
+      lesson_id,
+      unit_id,
+      is_correct,
+      hint_used = false,
+      time_secs = 0,
     } = body
 
-    // Validate required fields
-    if (!exercise_id || is_correct === undefined || !answer_given) {
+    if (!exercise_id || !lesson_id || !unit_id || is_correct === undefined) {
       return NextResponse.json(
-        { error: 'Missing required fields: exercise_id, is_correct, answer_given' },
+        { error: 'Missing required fields: exercise_id, lesson_id, unit_id, is_correct' },
         { status: 400 }
       )
     }
 
-    // At least one of lesson_id or topic_id should be provided
-    if (!lesson_id && !topic_id) {
+    // Single atomic call – handles exercise_results + lesson_progress + daily_study_log
+    const { error: rpcError } = await supabase.rpc('submit_exercise_answer', {
+      p_user_id: user.id,
+      p_exercise_id: exercise_id,
+      p_lesson_id: lesson_id,
+      p_unit_id: unit_id,
+      p_is_correct: is_correct,
+      p_hint_used: hint_used,
+      p_time_secs: time_secs,
+    })
+
+    if (rpcError) {
+      console.error('[progress POST] RPC error:', rpcError)
       return NextResponse.json(
-        { error: 'At least one of lesson_id or topic_id must be provided' },
-        { status: 400 }
-      )
-    }
-
-    // Save progress
-    const progressData = {
-      user_id: user.id,
-      exercise_id,
-      is_correct,
-      answer_given,
-      time_spent_seconds: time_spent_seconds || null,
-      attempt_count: 1
-    }
-
-    // Add lesson_id and unit_id if provided
-    if (lesson_id) progressData.lesson_id = lesson_id
-    if (unit_id) progressData.unit_id = unit_id
-    if (topic_id) progressData.topic_id = topic_id // Backward compatible
-
-    const { data: progress, error: progressError } = await supabase
-      .from('student_progress')
-      .insert(progressData)
-      .select()
-      .single()
-
-    if (progressError) {
-      return NextResponse.json(
-        { error: 'Failed to save progress', details: progressError.message },
+        { error: 'Failed to save progress', details: rpcError.message },
         { status: 500 }
       )
     }
 
     return NextResponse.json({
       success: true,
-      progress,
-      message: is_correct ? '🎉 Correct!' : '💡 Try again!'
+      message: is_correct ? '🎉 Correct!' : '💡 Keep going!',
     })
 
-  } catch (error) {
-    return NextResponse.json(
-      { error: 'Internal server error', details: error.message },
-      { status: 500 }
-    )
+  } catch (err) {
+    console.error('[progress POST] unexpected error:', err)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
 
 /**
- * GET /api/progress?lesson_id=123
- * GET /api/progress?unit_id=123
- * GET /api/progress?topic_id=123  (backward compatible)
- * Get user progress for a lesson, unit, or topic
+ * GET /api/progress
+ *
+ * ?lesson_id=123          → lesson-level stats from v_lesson_progress
+ * ?lesson_id=123&detail=1 → same + per-exercise results (for "redo wrong" / "skip done")
+ * ?weekly=1               → last-7-days study log for the current user
  */
 export async function GET(request) {
   try {
-    const { searchParams } = new URL(request.url)
-    const lessonId = searchParams.get('lesson_id')
-    const unitId = searchParams.get('unit_id')
-    const topicId = searchParams.get('topic_id') // Backward compatible
-
     const supabase = await createClient()
 
-    // Check if user is logged in
     const { data: { user }, error: authError } = await supabase.auth.getUser()
-
     if (authError || !user) {
-      return NextResponse.json(
-        { error: 'Unauthorized - Please login first' },
-        { status: 401 }
-      )
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    if (!lessonId && !unitId && !topicId) {
+    const { searchParams } = new URL(request.url)
+    const lessonId = searchParams.get('lesson_id')
+    const weekly = searchParams.get('weekly')
+    const detail = searchParams.get('detail')
+
+    // ── Weekly study log ────────────────────────────────────────
+    if (weekly) {
+      const { data, error } = await supabase
+        .from('v_weekly_study')
+        .select('*')
+        .eq('user_id', user.id)
+
+      if (error) {
+        return NextResponse.json({ error: error.message }, { status: 500 })
+      }
+      return NextResponse.json({ success: true, weekly: data })
+    }
+
+    // ── Lesson-level stats ──────────────────────────────────────
+    if (!lessonId) {
       return NextResponse.json(
-        { error: 'Missing required parameter: lesson_id, unit_id, or topic_id' },
+        { error: 'Provide lesson_id or weekly=1' },
         { status: 400 }
       )
     }
 
-    // Build query
-    let query = supabase
-      .from('student_progress')
+    // Pre-aggregated stats (fast – 1 row)
+    const { data: lessonProgress, error: lpError } = await supabase
+      .from('v_lesson_progress')
       .select('*')
       .eq('user_id', user.id)
+      .eq('lesson_id', lessonId)
+      .maybeSingle()
 
-    // Apply filter based on what's provided (prioritize lesson_id > unit_id > topic_id)
-    if (lessonId) {
-      query = query.eq('lesson_id', lessonId)
-    } else if (unitId) {
-      query = query.eq('unit_id', unitId)
-    } else if (topicId) {
-      query = query.eq('topic_id', topicId)
+    if (lpError) {
+      return NextResponse.json({ error: lpError.message }, { status: 500 })
     }
 
-    const { data: progressList, error: progressError } = await query.order('completed_at', { ascending: false })
+    // Optionally return per-exercise detail (for "redo wrong" / "skip done")
+    let exerciseResults = null
+    if (detail) {
+      const { data, error } = await supabase
+        .from('exercise_results')
+        .select('exercise_id, is_correct, hint_used, attempt_count, answered_at')
+        .eq('user_id', user.id)
+        .eq('lesson_id', lessonId)
 
-    if (progressError) {
-      return NextResponse.json(
-        { error: 'Failed to fetch progress', details: progressError.message },
-        { status: 500 }
-      )
+      if (error) {
+        return NextResponse.json({ error: error.message }, { status: 500 })
+      }
+      exerciseResults = data
     }
-
-    // Compute statistics
-    const totalAttempts = progressList?.length || 0
-    const correctCount = progressList?.filter(p => p.is_correct).length || 0
-    const incorrectCount = totalAttempts - correctCount
-    const accuracy = totalAttempts > 0 ? ((correctCount / totalAttempts) * 100).toFixed(2) : 0
 
     return NextResponse.json({
       success: true,
-      progress: progressList,
-      stats: {
-        total_attempts: totalAttempts,
-        correct_count: correctCount,
-        incorrect_count: incorrectCount,
-        accuracy: `${accuracy}%`
-      }
+      lesson_progress: lessonProgress,    // null if student hasn't started this lesson
+      exercise_results: exerciseResults,   // only present when ?detail=1
     })
 
-  } catch (error) {
-    return NextResponse.json(
-      { error: 'Internal server error', details: error.message },
-      { status: 500 }
-    )
+  } catch (err) {
+    console.error('[progress GET] unexpected error:', err)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

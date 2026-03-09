@@ -59,6 +59,24 @@ export default async function GradeSubjectPage({ params, searchParams }) {
         console.error("Error fetching units:", error);
     }
 
+    // Fetch progress if logged in
+    let progressMap = {};
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user && units && units.length > 0) {
+        const unitIds = units.map(u => u.id);
+        const { data: progressList } = await supabase
+            .from("v_lesson_progress")
+            .select("*")
+            .eq("user_id", user.id)
+            .in("unit_id", unitIds);
+
+        if (progressList) {
+            progressList.forEach(p => {
+                progressMap[p.lesson_id] = p;
+            });
+        }
+    }
+
     const gradeColor = "#FF8A00";
 
     return (
@@ -93,7 +111,7 @@ export default async function GradeSubjectPage({ params, searchParams }) {
                                     {subject.icon} {subject.name} — {grade.name}
                                 </h1>
                                 <p className="cb-units-subtitle">
-                                    {units?.length ?? 0} units · {units?.reduce((acc, u) => acc + (u.lesson_count ?? 0), 0)} lessons
+                                    {units?.length || 0} units · {units?.reduce((acc, u) => acc + (u.lesson_count || 0), 0)} lessons
                                 </p>
                             </div>
                         </div>
@@ -123,21 +141,21 @@ export default async function GradeSubjectPage({ params, searchParams }) {
                                             </div>
                                             <div className="cb-unit-info">
                                                 <h2 className="cb-unit-title">{unit.title}</h2>
-                                                {unit.description && (
+                                                {unit.description ? (
                                                     <p className="cb-unit-desc">{unit.description}</p>
-                                                )}
+                                                ) : null}
                                             </div>
                                             <div className="cb-unit-meta">
                                                 <span className="cb-unit-count">
-                                                    {unit.lesson_count ?? unit.lessons?.length ?? 0} lessons
+                                                    {unit.lesson_count || (unit.lessons && unit.lessons.length) || 0} lessons
                                                 </span>
                                             </div>
                                         </div>
 
                                         {/* Lessons list */}
-                                        {unit.lessons && unit.lessons.length > 0 && (
+                                        {Array.isArray(unit.lessons) && unit.lessons.length > 0 ? (
                                             <div className="cb-lessons-grid">
-                                                {unit.lessons
+                                                {[...unit.lessons]
                                                     .sort((a, b) => a.order_index - b.order_index)
                                                     .map((lesson) => (
                                                         <Link
@@ -152,15 +170,24 @@ export default async function GradeSubjectPage({ params, searchParams }) {
                                                                 {lesson.title.replace(lesson.lesson_number + " ", "")}
                                                             </span>
                                                             <span className="cb-lesson-exercises">
-                                                                {lesson.exercise_count > 0
-                                                                    ? `${lesson.exercise_count} exercises`
-                                                                    : "Coming Soon"}
+                                                                {lesson.exercise_count > 0 ? (
+                                                                    progressMap[lesson.id] ? (
+                                                                        <span style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}>
+                                                                            <span className="cb-lesson-badge" style={{ backgroundColor: "#e2ffe8", padding: "2px 8px", borderRadius: "12px", color: "#16a34a", fontWeight: "bold", fontSize: "0.85rem" }}>
+                                                                                {Math.round((progressMap[lesson.id].done_count / lesson.exercise_count) * 100)}%
+                                                                            </span>
+                                                                            <span>{lesson.exercise_count} exercises</span>
+                                                                        </span>
+                                                                    ) : (
+                                                                        `${lesson.exercise_count} exercises`
+                                                                    )
+                                                                ) : "Coming Soon"}
                                                             </span>
                                                             <span className="cb-lesson-arrow" style={{ color: gradeColor }}>›</span>
                                                         </Link>
                                                     ))}
                                             </div>
-                                        )}
+                                        ) : null}
                                     </div>
                                 ))}
                             </div>

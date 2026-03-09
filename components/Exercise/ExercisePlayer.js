@@ -55,12 +55,17 @@ function StarRating({ correct, total }) {
 // ─── main component ───────────────────────────────────────────
 export default function ExercisePlayer({
     exercises,
+    exerciseResults, // passed from server page
     lesson,
     unit,
     grade,
     subject,
     unitsHref,
 }) {
+    const [hasStarted, setHasStarted] = useState(!exerciseResults || exerciseResults.length === 0);
+    const [playMode, setPlayMode] = useState("all");
+    const [shuffledIds, setShuffledIds] = useState([]);
+
     const [currentIndex, setCurrentIndex] = useState(0);
     const [userAnswer, setUserAnswer] = useState(""); // option id (mc/tf) or string (fill)
     const [submitted, setSubmitted] = useState(false);
@@ -75,7 +80,23 @@ export default function ExercisePlayer({
     const [reportSubmitting, setReportSubmitting] = useState(false);
     const [reportDone, setReportDone] = useState(false);
 
-    const exercise = exercises[currentIndex];
+    // ── progress tracking ────────────────────────────────────────
+    // Whether the hint was opened for the CURRENT question
+    const [hintUsedThisQuestion, setHintUsedThisQuestion] = useState(false);
+    // Unix-ms timestamp when the current question was first shown
+    const [questionStartTime, setQuestionStartTime] = useState(() => Date.now());
+
+    // ── Derived variables for progress modes ─────────────────────
+    const wrongIds = exerciseResults?.filter(r => !r.is_correct).map(r => r.exercise_id) || [];
+    const doneIds = exerciseResults?.map(r => r.exercise_id) || [];
+    const remainingIds = exercises.filter(e => !doneIds.includes(e.id)).map(e => e.id);
+
+    let activeList = exercises;
+    if (playMode === "wrong") activeList = exercises.filter(e => wrongIds.includes(e.id));
+    if (playMode === "remaining") activeList = exercises.filter(e => remainingIds.includes(e.id));
+    if (playMode === "random") activeList = shuffledIds.map(id => exercises.find(e => e.id === id)).filter(Boolean);
+
+    const exercise = activeList[currentIndex];
     const isFillBlank = exercise?.question_type === "fill_blank";
     const canSubmit = isFillBlank
         ? userAnswer.trim().length > 0
@@ -83,7 +104,7 @@ export default function ExercisePlayer({
 
     // ── save progress (fire-and-forget, only if user is logged in) ──
     const saveProgress = useCallback(
-        async (exerciseId, correct, answer) => {
+        async (exerciseId, correct, hintUsed, timeSecs) => {
             try {
                 await fetch("/api/progress", {
                     method: "POST",
@@ -93,7 +114,8 @@ export default function ExercisePlayer({
                         lesson_id: lesson.id,
                         unit_id: unit.id,
                         is_correct: correct,
-                        answer_given: String(answer),
+                        hint_used: hintUsed,
+                        time_secs: timeSecs,
                     }),
                 });
             } catch {
@@ -110,7 +132,8 @@ export default function ExercisePlayer({
         setIsCorrect(correct);
         setSubmitted(true);
         if (correct) setCorrectCount((c) => c + 1);
-        saveProgress(exercise.id, correct, userAnswer);
+        const timeSecs = Math.round((Date.now() - questionStartTime) / 1000);
+        saveProgress(exercise.id, correct, hintUsedThisQuestion, timeSecs);
     }
 
     // ── advance to next question ────────────────────────────────
@@ -119,7 +142,7 @@ export default function ExercisePlayer({
         // Fade out
         setVisible(false);
         setTimeout(() => {
-            if (next >= exercises.length) {
+            if (next >= activeList.length) {
                 setFinished(true);
             } else {
                 setCurrentIndex(next);
@@ -127,6 +150,9 @@ export default function ExercisePlayer({
                 setSubmitted(false);
                 setIsCorrect(false);
                 setHintOpen(false);
+                // Reset per-question tracking for the new question
+                setHintUsedThisQuestion(false);
+                setQuestionStartTime(Date.now());
             }
             setVisible(true);
         }, 260);
@@ -174,11 +200,56 @@ export default function ExercisePlayer({
         if (e.key === "Enter" && canSubmit && !submitted) handleSubmit();
     }
 
-    const progress = ((currentIndex) / exercises.length) * 100;
+    const progress = activeList.length > 0 ? ((currentIndex) / activeList.length) * 100 : 0;
+
+    // ── START SCREEN (If user has progress) ────────────────────
+    if (!hasStarted) {
+        return (
+            <div className="cb-completion-screen">
+                <div className="cb-completion-card">
+                    <div className="cb-completion-emoji">🎯</div>
+                    <h2 className="cb-completion-title">Your Progress</h2>
+                    <p className="cb-completion-subtitle">
+                        You have completed {doneIds.length} out of {exercises.length} exercises.
+                    </p>
+                    <div className="cb-completion-actions" style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '24px', width: '100%', maxWidth: '300px', marginInline: 'auto' }}>
+                        <button className="cb-submit-btn" style={{ width: '100%', boxSizing: 'border-box' }} onClick={() => { setPlayMode("all"); setHasStarted(true); }}>
+                            Start Over (All)
+                        </button>
+                        {remainingIds.length > 0 && (
+                            <button className="cb-restart-btn" style={{ width: '100%', boxSizing: 'border-box' }} onClick={() => { setPlayMode("remaining"); setHasStarted(true); }}>
+                                Do Remaining ({remainingIds.length})
+                            </button>
+                        )}
+                        {wrongIds.length > 0 && (
+                            <button className="cb-restart-btn" style={{ background: '#fef2f2', color: '#ef4444', borderColor: '#f87171', width: '100%', boxSizing: 'border-box' }} onClick={() => { setPlayMode("wrong"); setHasStarted(true); }}>
+                                Redo Wrong ({wrongIds.length})
+                            </button>
+                        )}
+                        {exercises.length > 1 && (
+                            <button className="cb-restart-btn" style={{ width: '100%', boxSizing: 'border-box' }} onClick={() => {
+                                const shuffled = [...exercises].sort(() => 0.5 - Math.random()).slice(0, 10).map(e => e.id);
+                                setShuffledIds(shuffled);
+                                setPlayMode("random");
+                                setHasStarted(true);
+                            }}>
+                                Random {Math.min(10, exercises.length)}
+                            </button>
+                        )}
+                    </div>
+                    <div style={{ marginTop: '32px', textAlign: 'center' }}>
+                        <Link href={unitsHref} className="cb-submit-btn" style={{ display: 'inline-block', width: '100%', maxWidth: '180px', boxSizing: 'border-box', textDecoration: 'none' }}>
+                            ← Back to list
+                        </Link>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     // ── COMPLETION SCREEN ───────────────────────────────────────
     if (finished) {
-        const pct = Math.round((correctCount / exercises.length) * 100);
+        const pct = activeList.length > 0 ? Math.round((correctCount / activeList.length) * 100) : 0;
         return (
             <div className="cb-completion-screen">
                 <div className="cb-completion-card">
@@ -186,14 +257,15 @@ export default function ExercisePlayer({
                     <h2 className="cb-completion-title">Completed!</h2>
                     <p className="cb-completion-subtitle">
                         {lesson.lesson_number} {lesson.title.replace(lesson.lesson_number + " ", "")}
+                        {playMode !== "all" && ` (${playMode === "wrong" ? "Redo Wrong" : "Remaining"})`}
                     </p>
 
-                    <StarRating correct={correctCount} total={exercises.length} />
+                    <StarRating correct={correctCount} total={activeList.length} />
 
                     <div className="cb-completion-score">
                         <span className="cb-score-num">{correctCount}</span>
                         <span className="cb-score-sep">/</span>
-                        <span className="cb-score-total">{exercises.length}</span>
+                        <span className="cb-score-total">{activeList.length}</span>
                         <span className="cb-score-pct">({pct}%)</span>
                     </div>
 
@@ -234,7 +306,7 @@ export default function ExercisePlayer({
                     />
                 </div>
                 <span className="cb-ex-progress-label">
-                    {currentIndex + 1} / {exercises.length}
+                    {currentIndex + 1} / {activeList.length}
                 </span>
             </div>
 
@@ -289,7 +361,11 @@ export default function ExercisePlayer({
                 {exercise.hint && !submitted && (
                     <div
                         className={`cb-ex-hint ${hintOpen ? "cb-ex-hint--open" : "cb-ex-hint--closed"}`}
-                        onClick={() => setHintOpen((v) => !v)}
+                        onClick={() => {
+                            setHintOpen((v) => !v);
+                            // Mark hint as used for this question (cumulative – never resets)
+                            if (!hintUsedThisQuestion) setHintUsedThisQuestion(true);
+                        }}
                         title={hintOpen ? "Hide hint" : "Show hint"}
                         style={{ cursor: "pointer" }}
                     >
@@ -304,10 +380,10 @@ export default function ExercisePlayer({
                         <input
                             type="text"
                             className={`cb-fill-input ${submitted
-                                    ? isCorrect
-                                        ? "cb-fill-correct"
-                                        : "cb-fill-wrong"
-                                    : ""
+                                ? isCorrect
+                                    ? "cb-fill-correct"
+                                    : "cb-fill-wrong"
+                                : ""
                                 }`}
                             value={userAnswer}
                             onChange={(e) => {
