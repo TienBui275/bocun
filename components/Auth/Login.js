@@ -72,7 +72,9 @@ const Login = () => {
     return (
         <>
             <div className="cb-login-logo">
-                <div className="logo-icon">🍊</div>
+                <div className="logo-icon">
+                    <img src="/logo.svg" alt="Cam Logo" />
+                </div>
                 <h1>Cam</h1>
                 <p>Learn fun - Learn real every day!</p>
             </div>

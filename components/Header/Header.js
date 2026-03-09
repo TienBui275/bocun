@@ -17,7 +17,9 @@ const Header = () => {
                 <div className="cb-header-inner">
                     {/* Logo */}
                     <Link href="/" className="cb-logo">
-                        <div className="cb-logo-icon">🍊</div>
+                        <div className="cb-logo-icon">
+                            <img src="/logo.svg" alt="Cam Logo" />
+                        </div>
                         <span>Cam</span>
                     </Link>
 

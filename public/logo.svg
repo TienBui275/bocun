@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="100%" height="100%">
+  <defs>
+    <!-- Radial gradient for 3D effect on the orange -->
+    <radialGradient id="orangeGradient" cx="45%" cy="45%" r="55%">
+      <stop offset="0%" stop-color="#FFA833"/>
+      <stop offset="70%" stop-color="#FF8A00"/>
+      <stop offset="100%" stop-color="#E56A00"/>
+    </radialGradient>
+
+    <!-- Linear Gradient for Leaf -->
+    <linearGradient id="leafGradient" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#4CAF50"/>
+      <stop offset="100%" stop-color="#81C784"/>
+    </linearGradient>
+
+    <!-- Linear Gradient for Stem/Back Leaf -->
+    <linearGradient id="stemGradient" x1="0%" y1="100%" x2="0%" y2="0%">
+      <stop offset="0%" stop-color="#2E7D32"/>
+      <stop offset="100%" stop-color="#43A047"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Left/Back Leaf (darker green) -->
+  <path d="M 100 55 C 85 40 80 25 80 25 C 90 20 95 30 105 45 Z" fill="url(#stemGradient)"/>
+
+  <!-- Main Orange Body -->
+  <circle cx="100" cy="115" r="65" fill="url(#orangeGradient)" />
+
+  <!-- Back Highlight (Outline Glow effect) -->
+  <path d="M 36 115 A 64 64 0 0 1 164 115 A 64 64 0 0 0 36 115 Z" fill="#FFE0B2" opacity="0.3" />
+  
+  <!-- Left Side Highlight (Crescent shape, glowing) -->
+  <path d="M 45 110 C 35 90 45 70 65 60 C 50 75 42 95 52 115 A 65 65 0 0 1 45 110 Z" fill="#FFD199" opacity="0.8"/>
+
+  <!-- Top-left Small Highlight (Oval) -->
+  <ellipse cx="80" cy="65" rx="12" ry="7" transform="rotate(-30 80 65)" fill="#FFECCA" opacity="0.9"/>
+
+  <!-- Base Stem connecting to orange -->
+  <path d="M 98 42 Q 102 50 102 55 L 98 55 Z" fill="#1C521E"/>
+  
+  <!-- Main Front Leaf (bright green, curving right) -->
+  <path d="M 100 55 C 105 25 125 15 150 15 C 140 40 120 55 100 55 Z" fill="url(#leafGradient)"/>
+</svg>
